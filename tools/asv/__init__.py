@@ -32,4 +32,4 @@ if not ASV_PROJECT_DIR:
     else:
         ASV_PROJECT_DIR = join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 
-locals().update(create_wrappers(join(ASV_PROJECT_DIR, "arbxx", "benchmark", "benchmark")))
+locals().update(create_wrappers(join(ASV_PROJECT_DIR, "libarbxx", "benchmark", "benchmark")))
