@@ -13,12 +13,12 @@
     "boost-cpp": [],
     "ccache": [],
     "coreutils": [],
-    "pip+cppasv": [],
     "cppyy": ["2.2.0"],
     "cppyythonizations": [],
     "cxx-compiler": [],
     "libtool": [],
     "make": [],
+    "pip+cppasv": [],
     "pytest": [],
     "python": [],
     "setuptools": []
