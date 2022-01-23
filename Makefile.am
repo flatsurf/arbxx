@@ -1,4 +1,4 @@
-SUBDIRS = libexactreal pyexactreal
+SUBDIRS = libarbxx pyarbxx
 
 ACLOCAL_AMFLAGS = -I m4
 

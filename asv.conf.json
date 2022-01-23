@@ -1,12 +1,13 @@
 {
   "version": 1,
   "dvcs": "git",
-  "project": "exact-real",
-  "project_url": "https://github.com/flatsurf/exact-real",
-  "show_commit_url": "https://github.com/flatsurf/exact-real/commit/",
+  "project": "arbxx",
+  "project_url": "https://github.com/flatsurf/arbxx",
+  "show_commit_url": "https://github.com/flatsurf/arbxx/commit/",
   "repo": ".",
   "environment_type": "conda",
   "matrix": {
+    "arb": ["2.21.1"],
     "automake": [],
     "benchmark==1.5.0": [],
     "boost-cpp": [],
@@ -16,20 +17,14 @@
     "cppyy": ["2.2.0"],
     "cppyythonizations": [],
     "cxx-compiler": [],
-    "libeantic": ["1.0.3"],
-    "gmp": [],
-    "gmpxxll": [],
-    "gmpxxyy": [],
-    "libflint": [],
     "libtool": [],
     "make": [],
-    "ppl": [],
     "pytest": [],
     "python": [],
     "setuptools": []
   },
   "conda_channels": ["conda-forge", "default"],
-  "repo_subdir": "libexactreal",
+  "repo_subdir": "arbxx",
   "build_command": [
     "autoreconf -ivf",
     "/bin/sh configure CXX='ccache c++'",
@@ -42,5 +37,3 @@
   "results_dir": ".asv/results",
   "html_dir": ".asv/html"
 }
-
-

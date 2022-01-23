@@ -1,20 +1,20 @@
 ######################################################################
-#  This file is part of exact-real.
+#  This file is part of arbxx.
 #
-#        Copyright (C) 2020 Julian Rüth
+#        Copyright (C) 2022 Julian Rüth
 #
-#  exact-real is free software: you can redistribute it and/or modify
+#  arbxx is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Lesser General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or (at your
 #  option) any later version.
 #
-#  exact-real is distributed in the hope that it will be useful,
+#  arbxx is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with exact-real. If not, see <https://www.gnu.org/licenses/>.
+#  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
 #####################################################################
 
 import sys
@@ -28,7 +28,7 @@ sys.path.insert(0, 'tools/rever')
 
 import autodist
 
-$PROJECT = 'exact-real'
+$PROJECT = 'arbxx'
 
 $ACTIVITIES = [
     'version_bump',
@@ -40,24 +40,22 @@ $ACTIVITIES = [
 ]
 
 $VERSION_BUMP_PATTERNS = [
-    ('configure.ac', r'AC_INIT', r'AC_INIT([exact-real], [$VERSION], [julian.rueth@fsfe.org])'),
-    ('libexactreal/configure.ac', r'AC_INIT', r'AC_INIT([libexactreal], [$VERSION], [julian.rueth@fsfe.org])'),
-    ('pyexactreal/configure.ac', r'AC_INIT', r'AC_INIT([pyexactreal], [$VERSION], [julian.rueth@fsfe.org])'),
-    ('libexactreal/recipe/meta.yaml', r"\{% set version =", r"{% set version = '$VERSION' %}"),
-    ('libexactreal/recipe/meta.yaml', r"\{% set build_number =", r"{% set build_number = '0' %}"),
-    ('pyexactreal/recipe/meta.yaml', r"\{% set version =", r"{% set version = '$VERSION' %}"),
-    ('pyexactreal/recipe/meta.yaml', r"\{% set build_number =", r"{% set build_number = '0' %}"),
-    ('README.md', r'\* \*\*libexactreal*\* \[!\[Binder\]', r'* **libexactreal* [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/flatsurf/exact-real/$VERSION?filepath=binder%2FSample.libexactreal.ipynb)'),
-    ('README.md', r'\* \*\*pyexactreal\*\* \[!\[Binder\]', r'* **pyexactreal** [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/flatsurf/exact-real/$VERSION?filepath=binder%2FSample.pyexactreal.ipynb)'),
+    ('configure.ac', r'AC_INIT', r'AC_INIT([arbxx], [$VERSION], [julian.rueth@fsfe.org])'),
+    ('libarbxx/configure.ac', r'AC_INIT', r'AC_INIT([libarbxx], [$VERSION], [julian.rueth@fsfe.org])'),
+    ('pyarbxx/configure.ac', r'AC_INIT', r'AC_INIT([pyarbxx], [$VERSION], [julian.rueth@fsfe.org])'),
+    ('libarbxx/recipe/meta.yaml', r"\{% set version =", r"{% set version = '$VERSION' %}"),
+    ('libarbxx/recipe/meta.yaml', r"\{% set build_number =", r"{% set build_number = '0' %}"),
+    ('pyarbxx/recipe/meta.yaml', r"\{% set version =", r"{% set version = '$VERSION' %}"),
+    ('pyarbxx/recipe/meta.yaml', r"\{% set build_number =", r"{% set build_number = '0' %}"),
 ]
 
 $CHANGELOG_FILENAME = 'ChangeLog'
 $CHANGELOG_TEMPLATE = 'TEMPLATE.rst'
 $CHANGELOG_NEWS = 'doc/news'
 $CHANGELOG_CATEGORIES = ('Added', 'Changed', 'Deprecated', 'Removed', 'Fixed', 'Performance')
-$PUSH_TAG_REMOTE = 'git@github.com:flatsurf/exact-real.git'
+$PUSH_TAG_REMOTE = 'git@github.com:flatsurf/arbxx.git'
 
 $GITHUB_ORG = 'flatsurf'
-$GITHUB_REPO = 'exact-real'
+$GITHUB_REPO = 'arbxx'
 
-$GHRELEASE_ASSETS = ['exact-real-' + $VERSION + '.tar.gz']
+$GHRELEASE_ASSETS = ['arbxx-' + $VERSION + '.tar.gz']
