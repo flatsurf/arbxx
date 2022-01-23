@@ -17,11 +17,11 @@ jobs:
     - run: docker pull condaforge/linux-anvil-comp7
     - uses: flatsurf/actions/conda-forge-build@main
       with:
-        recipe: libexactreal/recipe
+        recipe: libarbxx/recipe
         channels: flatsurf
     - uses: flatsurf/actions/conda-forge-build@main
       with:
-        recipe: pyexactreal/recipe
+        recipe: pyarbxx/recipe
         channels: flatsurf
     - uses: actions/upload-artifact@v2
       with:
@@ -51,7 +51,7 @@ jobs:
         mamba env update -n test --quiet -f repo2docker.yml
         mamba env update -n test --quiet -f binder/environment.yml
         conda list
-        mamba install --use-local -y libexactreal pyexactreal
+        mamba install --use-local -y libarbxx pyarbxx
         conda list
     - name: Run all example notebooks
       shell: bash -l {0}

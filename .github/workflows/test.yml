@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-libexactreal:
+  test-libarbxx:
     runs-on: ${{ matrix.on }}
     strategy:
       matrix:
@@ -53,13 +53,13 @@ jobs:
       - name: install dependencies
         shell: bash -l {0}
         run: |
-          mamba env update --quiet -n test -f libexactreal/environment.yml
+          mamba env update --quiet -n test -f libarbxx/environment.yml
           conda list
       - name: configure & build & test
         shell: bash -l {0}
         run: |
           echo "::group::bootstrap"
-          cd libexactreal
+          cd libarbxx
           ./bootstrap
 
           echo "::group::configure"
@@ -81,7 +81,7 @@ jobs:
         with:
           limit-access-to-actor: true
         if: ${{ failure() && github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-  test-pyexactreal:
+  test-pyarbxx:
     runs-on: ${{ matrix.on }}
     strategy:
       matrix:
@@ -141,8 +141,8 @@ jobs:
       - name: install dependencies
         shell: bash -l {0}
         run: |
-          mamba env update --quiet -n test -f libexactreal/environment.yml
-          mamba env update --quiet -n test -f pyexactreal/environment.yml
+          mamba env update --quiet -n test -f libarbxx/environment.yml
+          mamba env update --quiet -n test -f pyarbxx/environment.yml
           conda list
       - name: configure & build & test
         shell: bash -l {0}
@@ -172,7 +172,7 @@ jobs:
           make V=1
 
           echo "::group::test"
-          cd pyexactreal
+          cd pyarbxx
           make V=1 `[[ "${{ matrix.sanitizer }}" == "valgrind" ]] && echo check-valgrind || echo check` VALGRIND_SUPPRESSIONS_FILES=`pwd`/../tools/valgrind/conda.supp
       - uses: flatsurf/actions/show-logs@main
         if: ${{ always() }}
@@ -191,8 +191,8 @@ jobs:
       - name: install dependencies
         shell: bash -l {0}
         run: |
-          mamba env update --quiet -n test -f libexactreal/environment.yml
-          mamba env update --quiet -n test -f pyexactreal/environment.yml
+          mamba env update --quiet -n test -f libarbxx/environment.yml
+          mamba env update --quiet -n test -f pyarbxx/environment.yml
           conda list
       - name: make distcheck
         shell: bash -l {0}

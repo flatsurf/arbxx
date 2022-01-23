@@ -1,4 +1,4 @@
 ignore:
   - "usr"
-  - "libexactreal/test"
+  - "libarbxx/test"
   - "external"
