@@ -32,10 +32,10 @@ jobs:
         shell: bash -l {0}
         run: |
           pushd libarbxx/test
-          find -type f -name '*.gcda' -exec gcov -pbs ../../../exact-real '{}' ';'
+          find -type f -name '*.gcda' -exec gcov -pbs ../../../arbxx '{}' ';'
           popd
           pushd libarbxx/src
-          find -type f -name '*.gcda' -exec gcov -pbs ../../../exact-real '{}' ';'
+          find -type f -name '*.gcda' -exec gcov -pbs ../../../arbxx '{}' ';'
           popd
           curl -s https://codecov.io/bash | bash -s - -X gcov -R `pwd` .
 
