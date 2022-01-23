@@ -12,7 +12,7 @@ dnl Version number of the library c:r:a.
 dnl Set to c+1:0:0 on a non-backwards-compatible change.
 dnl Set to c+1:0:a+1 on a backwards-compatible change.
 dnl Set to c:r+1:a if the interface is unchanged.
-AC_SUBST([libarbxx_version_info], [8:0:0])
+AC_SUBST([libarbxx_version_info], [0:0:0])
 
 AC_CANONICAL_HOST
 
