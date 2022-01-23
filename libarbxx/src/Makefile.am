@@ -33,11 +33,6 @@ VPATH = $(srcdir) $(builddir)
 BUILT_SOURCES = ../arbxx/local.hpp
 # Distribute local.hpp.in as part of the tarball, but not local.hpp
 EXTRA_DIST = ../arbxx/local.hpp.in
-# We vendor the header-only library Cereal (serialization with C++) which we
-# use in some of our source files.
-# Cereal is basically not packaged in any distribution since it is a
-# header-only library that people always vendor into their source tree.
-EXTRA_DIST += external/cereal/include
 generatedincludedir = $(includedir)/arbxx
 nodist_generatedinclude_HEADERS = ../arbxx/local.hpp
 
