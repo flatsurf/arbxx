@@ -27,7 +27,6 @@
 #include <flint/flintxx/frandxx.h>
 #include <gmpxx.h>
 
-#include <e-antic/renfxx_fwd.hpp>
 #include <memory>
 #include <optional>
 
@@ -137,45 +136,6 @@ class LIBARBXX_API Arb {
   ///     // -> [0.33333333333333333333333333333333 +/- 3.34e-33]
   ///
   Arb(const mpq_class&, const prec);
-
-  /// Create an element containing this number field element.
-  /// The precision of the Arb ball, depends on the internal representation of
-  /// the number field element.
-  ///
-  ///     #include <e-antic/renf_class.hpp>
-  ///     #include <e-antic/renf_elem_class.hpp>
-  ///
-  ///     auto K = eantic::renf_class::make("x^2 - 2", "x", "1.4 +/- 1");
-  ///     auto a = eantic::renf_elem_class(*K, std::vector{-1, 1});
-  ///
-  ///     arbxx::Arb x{a};
-  ///     std::cout << x;
-  ///     // -> [0.414214 +/- 4.38e-7]
-  ///
-  explicit Arb(const eantic::renf_elem_class&);
-
-  /// Create an element containing this number field element in a ball of
-  /// precision at least `prec`.
-  ///
-  ///     #include <e-antic/renf_class.hpp>
-  ///     #include <e-antic/renf_elem_class.hpp>
-  ///
-  ///     auto K = eantic::renf_class::make("x^2 - 2", "x", "1.4 +/- 1");
-  ///     auto a = eantic::renf_elem_class(*K, std::vector{-1, 1});
-  ///
-  ///     arbxx::Arb x{a, 8};
-  ///     std::cout << std::setprecision(32) << x;
-  ///     // -> [0.41406250000000000000000000000000 +/- 7.82e-3]
-  ///
-  ///     arbxx::Arb y{a, 256};
-  ///     std::cout << std::setprecision(32) << y;
-  ///     // -> [0.41421356237309504880168872420970 +/- 1.93e-33]
-  ///
-  ///     arbxx::Arb z{a, 8};
-  ///     std::cout << std::setprecision(32) << z;
-  ///     // -> [0.41406250000000000000000000000000 +/- 7.82e-3]
-  ///
-  Arb(const eantic::renf_elem_class&, const prec);
 
   /// Create an Arb ball with lower and upper bound as given by the pair, see
   /// [arb_set_interval_arf]().

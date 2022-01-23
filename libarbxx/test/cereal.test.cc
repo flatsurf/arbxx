@@ -18,11 +18,8 @@
  *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
-#include <e-antic/renfxx.h>
-
 #include <boost/lexical_cast.hpp>
 #include <cereal/archives/json.hpp>
-#include <e-antic/cereal.hpp>
 
 #include "../arbxx/cereal.hpp"
 #include "arb.hpp"

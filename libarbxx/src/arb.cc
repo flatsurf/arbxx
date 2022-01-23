@@ -21,7 +21,6 @@
 #include "../arbxx/arb.hpp"
 
 #include <arb.h>
-#include <e-antic/renfxx.h>
 #include <flint/fmpz.h>
 
 #include <algorithm>
@@ -93,14 +92,6 @@ Arb::Arb(const mpz_class& value) : Arb() {
 }
 
 Arb::Arb(const std::string& value, const prec precision) : Arb() { arb_set_str(arb_t(), value.c_str(), precision); }
-
-Arb::Arb(const eantic::renf_elem_class& renf) : Arb(renf, ARB_PRECISION_FAST) {}
-
-Arb::Arb(const eantic::renf_elem_class& renf, const mp_limb_signed_t precision) : Arb() {
-  renf_refine_embedding(renf.parent().renf_t(), precision);
-  renf_elem_set_evaluation(renf.renf_elem_t(), renf.parent().renf_t(), precision);
-  arb_set(arb_t(), renf.renf_elem_t()->emb);
-}
 
 Arb::~Arb() noexcept { arb_clear(arb_t()); }
 
