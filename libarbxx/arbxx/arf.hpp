@@ -119,7 +119,7 @@ class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
   ///     std::cout << x;
   ///     // -> 10.7344=687p-6
   ///
-  explicit Arf(const mpz_class& mantissa, long exponent=0);
+  explicit Arf(const mpz_class& mantissa, long exponent = 0);
 
   /// ==* Arf(integer) *==
   /// Create a floating point number from an integer.

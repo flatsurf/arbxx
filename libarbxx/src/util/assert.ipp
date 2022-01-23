@@ -70,17 +70,17 @@ bool noassert() {
 }  // namespace arbxx
 
 #define LIBARBXX_ASSERT_(CONDITION, EXCEPTION, MESSAGE)                    \
-  while (BOOST_UNLIKELY(static_cast<bool>(not(CONDITION)))) {                  \
-    std::stringstream user_message, assertion_message;                         \
-    user_message << MESSAGE;                                                   \
-    assertion_message << (#CONDITION " does not hold");                        \
-    if (user_message.str().size())                                             \
-      assertion_message << ": " << user_message.str();                         \
-    else                                                                       \
-      assertion_message << " ";                                                \
-    assertion_message << " in " __FILE__ ":" BOOST_PP_STRINGIZE(__LINE__);     \
-    /* show messages in noexcept blocks */                                     \
-    std::cerr << assertion_message.str() << std::endl;                         \
+  while (BOOST_UNLIKELY(static_cast<bool>(not(CONDITION)))) {              \
+    std::stringstream user_message, assertion_message;                     \
+    user_message << MESSAGE;                                               \
+    assertion_message << (#CONDITION " does not hold");                    \
+    if (user_message.str().size())                                         \
+      assertion_message << ": " << user_message.str();                     \
+    else                                                                   \
+      assertion_message << " ";                                            \
+    assertion_message << " in " __FILE__ ":" BOOST_PP_STRINGIZE(__LINE__); \
+    /* show messages in noexcept blocks */                                 \
+    std::cerr << assertion_message.str() << std::endl;                     \
     ::arbxx::throw_for_assert(EXCEPTION(assertion_message.str().c_str())); \
   }
 
@@ -105,9 +105,9 @@ bool noassert() {
 #define LIBARBXX_ASSERT(CONDITION, MESSAGE) LIBARBXX_ASSERT_(LIBARBXX_ASSERT_CONDITION(CONDITION), std::logic_error, MESSAGE)
 
 #define LIBARBXX_UNREACHABLE(MESSAGE)                  \
-  {                                                        \
+  {                                                    \
     LIBARBXX_ASSERT_(false, std::logic_error, MESSAGE) \
-    __builtin_unreachable();                               \
+    __builtin_unreachable();                           \
   }
 
 #endif

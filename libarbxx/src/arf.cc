@@ -18,11 +18,11 @@
  *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
-#include <ostream>
-
 #include "../arbxx/arf.hpp"
 
 #include <arf.h>
+
+#include <ostream>
 
 #include "util/integer.ipp"
 

@@ -21,10 +21,11 @@
 #ifndef LIBARBXX_INTEGER_IPP
 #define LIBARBXX_INTEGER_IPP
 
-#include <type_traits>
-#include <limits>
-
 #include <arf.h>
+
+#include <limits>
+#include <type_traits>
+
 #include "../external/gmpxxll/gmpxxll/mpz_class.hpp"
 
 namespace arbxx {
