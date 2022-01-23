@@ -130,10 +130,10 @@ cppyy.py.add_pythonization(enable_pretty_printing, "arbxx")
 
 cppyy.py.add_pythonization(lambda proxy, name: enable_cereal(proxy, name, ["arbxx/cereal.hpp"]), "arbxx")
 
-# Set EXTRA_CLING_ARGS="-I /usr/include" or wherever arbxx/cppyy.hpp can
-# be resolved if the following line fails to find the header file.
 cppyy.add_include_path(os.path.join(os.path.dirname(__file__), 'include'))
 
+# Set EXTRA_CLING_ARGS="-I /usr/include" or wherever arbxx/cppyy.hpp can
+# be resolved if the following line fails to find the header file.
 cppyy.include("arbxx/cppyy.hpp")
 
 arbxx = cppyy.gbl.arbxx
