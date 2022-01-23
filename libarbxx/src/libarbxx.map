@@ -1,3 +1,4 @@
 # This file controls which symbols libarbxx exports on Linux.
 LIBARBXX_0.1.0 {
+  global: *;
 };
