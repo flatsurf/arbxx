@@ -9,27 +9,27 @@
 # directly and pass a script to it as a parameter to keep DYLD_LIBRARY_PATH
 # alive.
 
-# Resolve #include <exact-real/*.h> relative to libeantic in the source tree and
-# resolve #include "local.hpp" relative to libexactreal/exact-real in the build tree.
-export EXTRA_CLING_ARGS="-I@abs_srcdir@/../../libexactreal -I@abs_builddir@/../../libexactreal/exact-real $EXTRA_CLING_ARGS"
+# Resolve #include <arbxx/*.h> relative to libeantic in the source tree and
+# resolve #include "local.hpp" relative to libarbxx/arbxx in the build tree.
+export EXTRA_CLING_ARGS="-I@abs_srcdir@/../../libarbxx -I@abs_builddir@/../../libarbxx/arbxx $EXTRA_CLING_ARGS"
 
-# Load libexactreal.so from our build tree.
-export LD_LIBRARY_PATH="@abs_builddir@/../../libexactreal/src/.libs/:$LD_LIBRARY_PATH"
+# Load libarbxx.so from our build tree.
+export LD_LIBRARY_PATH="@abs_builddir@/../../libarbxx/src/.libs/:$LD_LIBRARY_PATH"
 
 # Load libeantic.dylib from our build tree.
-export DYLD_LIBRARY_PATH="@abs_builddir@/../../libexactreal/src/.libs/:$DYLD_LIBRARY_PATH"
+export DYLD_LIBRARY_PATH="@abs_builddir@/../../libarbxx/src/.libs/:$DYLD_LIBRARY_PATH"
 
-# Load pyexactreal from our source tree.
+# Load pyarbxx from our source tree.
 export PYTHONPATH="@abs_srcdir@/../src/:@pythondir@:$PYTHONPATH"
 
 # Support libasan loading when our library has been built with -fsanitize=address.
-if [ ! -z "$EXACTREAL_LD_PRELOAD" ]; then
-  export LD_PRELOAD="$EXACTREAL_LD_PRELOAD:$LD_PRELOAD"
+if [ ! -z "$ARBXX_LD_PRELOAD" ]; then
+  export LD_PRELOAD="$ARBXX_LD_PRELOAD:$LD_PRELOAD"
 fi
 
 # Support libasan loading on macOS when our library has been built with -fsanitize=address.
-if [ ! -z "$EXACTREAL_DYLD_INSERT_LIBRARIES" ]; then
-  export DYLD_INSERT_LIBRARIES="$EXACTREAL_DYLD_INSERT_LIBRARIES:$DYLD_INSERT_LIBRARIES"
+if [ ! -z "$ARBXX_DYLD_INSERT_LIBRARIES" ]; then
+  export DYLD_INSERT_LIBRARIES="$ARBXX_DYLD_INSERT_LIBRARIES:$DYLD_INSERT_LIBRARIES"
 fi
 
 exec python3 $@

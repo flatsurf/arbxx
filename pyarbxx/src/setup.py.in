@@ -11,9 +11,9 @@ class vpath_egg_info(egg_info):
         egg_info.run(self)
 
 setup(
-    name = 'pyexactreal',
+    name = 'pyarbxx',
     version = '@PACKAGE_VERSION@',
-    packages = ['pyexactreal',],
+    packages = ['pyarbxx',],
     license = 'GPL 3.0+',
     install_requires=[
         'cppyy'

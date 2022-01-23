@@ -7,7 +7,7 @@ libarbxx_la_SOURCES =               \
 libarbxx_la_LDFLAGS = -version-info $(libarbxx_version_info)
 
 if HAVE_VERSION_SCRIPT
-libarbxx_la_LDFLAGS += -Wl,--version-script=$(srcdir)/libarbxx.map
+libarbxx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libarbxx.map
 
 EXTRA_libarbxx_la_DEPENDENCIES = $(srcdir)/libarbxx.map
 endif
@@ -43,6 +43,6 @@ nodist_generatedinclude_HEADERS = ../arbxx/local.hpp
 
 # We are building the libarbxx library so visibility attributes should be
 # set, see https://gcc.gnu.org/wiki/Visibility
-AM_CPPFLAGS += -DBUILD_LIBARBXX
+AM_CPPFLAGS = -DBUILD_LIBARBXX
 
 CLEANFILES = ../arbxx/local.hpp

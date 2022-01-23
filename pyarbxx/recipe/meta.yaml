@@ -2,7 +2,7 @@
 {% set build_number = '0' %}
 
 package:
-  name: pyexactreal
+  name: pyarbxx
   version: {{ version }}
 
 source:
@@ -10,8 +10,6 @@ source:
 
 build:
   number: {{ build_number }}
-  # e-antic is not available on Windows yet
-  skip: True  # [win]
 
 requirements:
   build:
@@ -22,20 +20,18 @@ requirements:
   host:
     - python
     - setuptools
-    - libexactreal
+    - libarbxx
   run:
     - python
     - boost-cpp
     - cppyy
-    - gmpxxyy>=1.0.1,<2
-    - pyeantic
 
 test:
   imports:
-    - pyexactreal
+    - pyarbxx
 
 about:
-  home: https://github.com/flatsurf/exactreal
+  home: https://github.com/flatsurf/arbxx
   license: GPL-3.0-or-later
   license_file: COPYING
-  summary: Finite Real Submodules
+  summary: C++ Wrappers for Arb

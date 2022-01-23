@@ -1,6 +1,6 @@
 export CXXFLAGS="$CXXFLAGS -g3"
 
-cd pyexactreal
+cd pyarbxx
 
 autoreconf -ivf
 
