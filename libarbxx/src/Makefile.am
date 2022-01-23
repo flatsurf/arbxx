@@ -13,17 +13,17 @@ EXTRA_libarbxx_la_DEPENDENCIES = $(srcdir)/libarbxx.map
 endif
 
 nobase_pkginclude_HEADERS =                                  \
-    ../exact-real/arb.hpp                                    \
-    ../exact-real/arf.hpp                                    \
-    ../exact-real/cereal.hpp                                 \
-    ../exact-real/cppyy.hpp
+    ../arbxx/arb.hpp                                    \
+    ../arbxx/arf.hpp                                    \
+    ../arbxx/cereal.hpp                                 \
+    ../arbxx/cppyy.hpp
 
 noinst_HEADERS =                                               \
     external/gmpxxll/gmpxxll/mpz_class.hpp                     \
     util/assert.ipp                                            \
     util/integer.ipp
 
-$(builddir)/../exact-real/local.hpp: $(srcdir)/../exact-real/local.hpp.in Makefile
+$(builddir)/../arbxx/local.hpp: $(srcdir)/../arbxx/local.hpp.in Makefile
 	mkdir -p $(builddir)/libarbxx
 	sed -e 's,[@]libdir[@],$(libdir),g' < $< > $@
 
