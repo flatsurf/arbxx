@@ -1,21 +1,9 @@
-[submodule "libexactreal/src/exact-real/external/spimpl"]
-	path = libarbxx/exact-real/external/spimpl
-	url = https://github.com/oliora/samples.git
-[submodule "libexactreal/src/external/hash-combine"]
-	path = libarbxx/src/external/hash-combine
-	url = https://github.com/flatsurf/hash-combine.git
-[submodule "libexactreal/src/external/unique-factory"]
-	path = libarbxx/src/external/unique-factory
-	url = https://github.com/flatsurf/unique-factory.git
-[submodule "libexactreal/test/external/cereal"]
+[submodule "libarbxx/test/external/cereal"]
 	path = libarbxx/test/external/cereal
 	url = https://github.com/USCiLab/cereal.git
-[submodule "libexactreal/src/external/gmpxxll"]
+[submodule "libarbxx/src/external/gmpxxll"]
 	path = libarbxx/src/external/gmpxxll
 	url = https://github.com/flatsurf/gmpxxll.git
-[submodule "libexactreal/src/external/cereal"]
-	path = libarbxx/src/external/cereal
-	url = https://github.com/USCiLab/cereal.git
-[submodule "libexactreal/test/external/catch2"]
+[submodule "libarbxx/test/external/catch2"]
 	path = libarbxx/test/external/catch2
 	url = https://github.com/catchorg/Catch2.git

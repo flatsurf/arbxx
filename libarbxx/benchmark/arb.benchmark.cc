@@ -1,29 +1,31 @@
 /**********************************************************************
- *  This file is part of exact-real.
+ *  This file is part of arbxx.
  *
- *        Copyright (C) 2019 Vincent Delecroix
- *        Copyright (C) 2019 Julian Rüth
+ *        Copyright (C)      2019 Vincent Delecroix
+ *        Copyright (C) 2019-2022 Julian Rüth
  *
- *  exact-real is free software: you can redistribute it and/or modify
+ *  arbxx is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  exact-real is distributed in the hope that it will be useful,
+ *  arbxx is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with exact-real. If not, see <https://www.gnu.org/licenses/>.
+ *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
 #include <benchmark/benchmark.h>
 
-#include "../exact-real/yap/arb.hpp"
+#include "../arbxx/arb.hpp"
 #include "../test/arb.hpp"
 
-namespace exactreal::test {
+namespace arbxx::test {
+
+// TODO: Document tests. Add more benchmarks. Add benchmarks for other structures.
 
 struct ArbBenchmark : public benchmark::Fixture {
   void SetUp(const benchmark::State& state) override { SetUp(const_cast<benchmark::State&>(state)); }
@@ -120,28 +122,6 @@ BENCHMARK_DEFINE_F(ArbBenchmark, AssignMove)
 }
 BENCHMARK_REGISTER_F(ArbBenchmark, AssignMove)->Apply(ArbBenchmark::BenchmarkedSizes);
 
-BENCHMARK_DEFINE_F(ArbBenchmark, Addition_Inplace_Yap)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state);
-
-  for (auto _ : state) {
-    x = y;
-    x += y(64);
-  }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, Addition_Inplace_Yap)->Apply(ArbBenchmark::BenchmarkedSizes);
-
-BENCHMARK_DEFINE_F(ArbBenchmark, Addition_Yap)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state);
-
-  for (auto _ : state) {
-    x = y;
-    x = (x + y)(64);
-  }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, Addition_Yap)->Apply(ArbBenchmark::BenchmarkedSizes);
-
 // For comparison, arithmetic with the C API
 BENCHMARK_DEFINE_F(ArbBenchmark, Addition_C)
 (benchmark::State& state) {
@@ -153,17 +133,6 @@ BENCHMARK_DEFINE_F(ArbBenchmark, Addition_C)
   }
 }
 BENCHMARK_REGISTER_F(ArbBenchmark, Addition_C)->Apply(ArbBenchmark::BenchmarkedSizes);
-
-BENCHMARK_DEFINE_F(ArbBenchmark, Arithmetic_Yap)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state), z = random(state);
-
-  for (auto _ : state) {
-    x = y;
-    x += (y * z + x)(64);
-  }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, Arithmetic_Yap)->Apply(ArbBenchmark::BenchmarkedSizes);
 
 // For comparison, the same, naively with the C API
 BENCHMARK_DEFINE_F(ArbBenchmark, Arithmetic_C)
@@ -194,4 +163,4 @@ BENCHMARK_DEFINE_F(ArbBenchmark, Arithmetic_C_optimized)
 }
 BENCHMARK_REGISTER_F(ArbBenchmark, Arithmetic_C_optimized)->Apply(ArbBenchmark::BenchmarkedSizes);
 
-}  // namespace exactreal::test
+}  // namespace arbxx::test

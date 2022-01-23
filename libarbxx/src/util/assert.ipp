@@ -1,24 +1,24 @@
 /**********************************************************************
- *  This file is part of exact-real.
+ *  This file is part of arbxx.
  *
- *        Copyright (C) 2020-2021 Julian Rüth
+ *        Copyright (C) 2020-2022 Julian Rüth
  *
- *  exact-real is free software: you can redistribute it and/or modify
+ *  arbxx is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  exact-real is distributed in the hope that it will be useful,
+ *  arbxx is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with exact-real. If not, see <https://www.gnu.org/licenses/>.
+ *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
-#ifndef LIBEXACTREAL_UTIL_ASSERT_IPP
-#define LIBEXACTREAL_UTIL_ASSERT_IPP
+#ifndef LIBARBXX_UTIL_ASSERT_IPP
+#define LIBARBXX_UTIL_ASSERT_IPP
 
 #include <boost/algorithm/string.hpp>
 #include <boost/preprocessor/stringize.hpp>
@@ -26,7 +26,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace exactreal {
+namespace arbxx {
 namespace {
 
 // A throw statement that can be used in noexcept marked blocks without
@@ -49,27 +49,27 @@ bool isSet(const char* env) {
   return true;
 }
 
-// Return whether all LIBEXACTREAL_CHECK_ and LIBEXACTREAL_ASSERT_ macros have
-// been disabled at runtime through the LIBEXACTREAL_NOCHECK environment
+// Return whether all LIBARBXX_CHECK_ and LIBARBXX_ASSERT_ macros have
+// been disabled at runtime through the LIBARBXX_NOCHECK environment
 // variable.
 bool nocheck() {
-  static bool value = isSet("LIBEXACTREAL_NOCHECK");
+  static bool value = isSet("LIBARBXX_NOCHECK");
   return value;
 }
 
-// Return whether all LIBEXACTREAL_ASSERT_ macros have been disabled at runtime
-// through the LIBEXACTREAL_NOASSERT environment variable.
+// Return whether all LIBARBXX_ASSERT_ macros have been disabled at runtime
+// through the LIBARBXX_NOASSERT environment variable.
 bool noassert() {
   if (nocheck()) return true;
 
-  static bool value = isSet("LIBEXACTREAL_NOASSERT");
+  static bool value = isSet("LIBARBXX_NOASSERT");
   return value;
 }
 
 }  // namespace
-}  // namespace exactreal
+}  // namespace arbxx
 
-#define LIBEXACTREAL_ASSERT_(CONDITION, EXCEPTION, MESSAGE)                    \
+#define LIBARBXX_ASSERT_(CONDITION, EXCEPTION, MESSAGE)                    \
   while (BOOST_UNLIKELY(static_cast<bool>(not(CONDITION)))) {                  \
     std::stringstream user_message, assertion_message;                         \
     user_message << MESSAGE;                                                   \
@@ -81,32 +81,32 @@ bool noassert() {
     assertion_message << " in " __FILE__ ":" BOOST_PP_STRINGIZE(__LINE__);     \
     /* show messages in noexcept blocks */                                     \
     std::cerr << assertion_message.str() << std::endl;                         \
-    ::exactreal::throw_for_assert(EXCEPTION(assertion_message.str().c_str())); \
+    ::arbxx::throw_for_assert(EXCEPTION(assertion_message.str().c_str())); \
   }
 
 // Run a (cheap) check that a (user provided) argument is valid.
 // If the check should be disabled when NDEBUG is defined, e.g., because it
-// occurs in a hotspot, use LIBEXACTREAL_ASSERT_ARGUMENT instead.
-#define LIBEXACTREAL_CHECK_ARGUMENT_(CONDITION) LIBEXACTREAL_ASSERT_(::exactreal::nocheck() || (CONDITION), std::invalid_argument, "")
-#define LIBEXACTREAL_CHECK_ARGUMENT(CONDITION, MESSAGE) LIBEXACTREAL_ASSERT_(::exactreal::nocheck() || (CONDITION), std::invalid_argument, MESSAGE)
+// occurs in a hotspot, use LIBARBXX_ASSERT_ARGUMENT instead.
+#define LIBARBXX_CHECK_ARGUMENT_(CONDITION) LIBARBXX_ASSERT_(::arbxx::nocheck() || (CONDITION), std::invalid_argument, "")
+#define LIBARBXX_CHECK_ARGUMENT(CONDITION, MESSAGE) LIBARBXX_ASSERT_(::arbxx::nocheck() || (CONDITION), std::invalid_argument, MESSAGE)
 
 #ifdef NDEBUG
 
-#define LIBEXACTREAL_ASSERT_CONDITION(CONDITION) (true || ::exactreal::noassert() || (CONDITION))
+#define LIBARBXX_ASSERT_CONDITION(CONDITION) (true || ::arbxx::noassert() || (CONDITION))
 
 #else
 
-#define LIBEXACTREAL_ASSERT_CONDITION(CONDITION) (::exactreal::noassert() || (CONDITION))
+#define LIBARBXX_ASSERT_CONDITION(CONDITION) (::arbxx::noassert() || (CONDITION))
 
 #endif
 
-#define LIBEXACTREAL_ASSERT_ARGUMENT_(CONDITION) CHECK_ARGUMENT_(LIBEXACTREAL_ASSERT_CONDITION(CONDITION))
-#define LIBEXACTREAL_ASSERT_ARGUMENT(CONDITION, MESSAGE) CHECK_ARGUMENT(LIBEXACTREAL_ASSERT_CONDITION(CONDITION), MESSAGE)
-#define LIBEXACTREAL_ASSERT(CONDITION, MESSAGE) LIBEXACTREAL_ASSERT_(LIBEXACTREAL_ASSERT_CONDITION(CONDITION), std::logic_error, MESSAGE)
+#define LIBARBXX_ASSERT_ARGUMENT_(CONDITION) CHECK_ARGUMENT_(LIBARBXX_ASSERT_CONDITION(CONDITION))
+#define LIBARBXX_ASSERT_ARGUMENT(CONDITION, MESSAGE) CHECK_ARGUMENT(LIBARBXX_ASSERT_CONDITION(CONDITION), MESSAGE)
+#define LIBARBXX_ASSERT(CONDITION, MESSAGE) LIBARBXX_ASSERT_(LIBARBXX_ASSERT_CONDITION(CONDITION), std::logic_error, MESSAGE)
 
-#define LIBEXACTREAL_UNREACHABLE(MESSAGE)                  \
+#define LIBARBXX_UNREACHABLE(MESSAGE)                  \
   {                                                        \
-    LIBEXACTREAL_ASSERT_(false, std::logic_error, MESSAGE) \
+    LIBARBXX_ASSERT_(false, std::logic_error, MESSAGE) \
     __builtin_unreachable();                               \
   }
 

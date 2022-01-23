@@ -1,21 +1,21 @@
 /**********************************************************************
- *  This file is part of exact-real.
+ *  This file is part of arbxx.
  *
- *        Copyright (C) 2019      Vincent Delecroix
- *        Copyright (C) 2019-2021 Julian Rüth
+ *        Copyright (C)      2019 Vincent Delecroix
+ *        Copyright (C) 2019-2022 Julian Rüth
  *
- *  exact-real is free software: you can redistribute it and/or modify
+ *  arbxx is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  exact-real is distributed in the hope that it will be useful,
+ *  arbxx is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with exact-real. If not, see <https://www.gnu.org/licenses/>.
+ *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
 /*
@@ -24,12 +24,12 @@
  * be safely shipped to the client, i.e., not the ones in config.h
  */
 
-#ifndef LIBEXACTREAL_LOCAL_HPP
-#define LIBEXACTREAL_LOCAL_HPP
+#ifndef LIBARBXXL_LOCAL_HPP
+#define LIBARBXXL_LOCAL_HPP
 
 #include <arb.h>
 
-namespace exactreal {
+namespace arbxx {
 // We use the same type that Arb uses to specify precisions. This is a signed
 // integer type defined by FLINT as mp_limb_signed_t which in turn is defined
 // by GMP.
@@ -53,33 +53,33 @@ constexpr bool false_v = false;
 template <typename = void>
 constexpr bool false_t = false;
 
-}  // namespace exactreal
+}  // namespace arbxx
 
 #ifdef __CLING__
 
 #pragma cling add_library_path("@libdir@")
-#pragma cling load("libexactreal")
+#pragma cling load("libarbxx")
 
 #endif  // __CLING__
 
 // Visibility Macros to separate API from non-API and inline template code.
 // See, https://gcc.gnu.org/wiki/Visibility.
 #if defined _WIN32 || defined __CYGWIN__
-#define LIBEXACTREAL_LIBRARY_IMPORT __declspec(dllimport)
-#define LIBEXACTREAL_LIBRARY_EXPORT __declspec(dllexport)
-#define LIBEXACTREAL_LIBRARY_HIDDEN
+#define LIBARBXX_LIBRARY_IMPORT __declspec(dllimport)
+#define LIBARBXX_LIBRARY_EXPORT __declspec(dllexport)
+#define LIBARBXX_LIBRARY_HIDDEN
 #else
-#define LIBEXACTREAL_LIBRARY_IMPORT __attribute__((visibility("default")))
-#define LIBEXACTREAL_LIBRARY_EXPORT __attribute__((visibility("default")))
-#define LIBEXACTREAL_LIBRARY_HIDDEN __attribute__((visibility("hidden")))
+#define LIBARBXX_LIBRARY_IMPORT __attribute__((visibility("default")))
+#define LIBARBXX_LIBRARY_EXPORT __attribute__((visibility("default")))
+#define LIBARBXX_LIBRARY_HIDDEN __attribute__((visibility("hidden")))
 #endif
 
-#ifdef BUILD_LIBEXACTREAL
-#define LIBEXACTREAL_API LIBEXACTREAL_LIBRARY_EXPORT
-#define LIBEXACTREAL_LOCAL LIBEXACTREAL_LIBRARY_HIDDEN
+#ifdef BUILD_LIBARBXX
+#define LIBARBXX_API LIBARBXX_LIBRARY_EXPORT
+#define LIBARBXX_LOCAL LIBARBXX_LIBRARY_HIDDEN
 #else
-#define LIBEXACTREAL_API LIBEXACTREAL_LIBRARY_IMPORT
-#define LIBEXACTREAL_LOCAL
+#define LIBARBXX_API LIBARBXX_LIBRARY_IMPORT
+#define LIBARBXX_LOCAL
 #endif
 
-#endif  // LIBEXACTREAL_EXACTREAL_HPP
+#endif  // LIBARBXX_ARBXX_HPP

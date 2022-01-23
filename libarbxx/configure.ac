@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We need at least autoconf 2.69 for this configure.ac to work.
 AC_PREREQ([2.69])
-AC_INIT([libexactreal], [0.0.0], [julian.rueth@fsfe.org])
+AC_INIT([libarbxx], [0.0.0], [julian.rueth@fsfe.org])
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
@@ -12,7 +12,7 @@ dnl Version number of the library c:r:a.
 dnl Set to c+1:0:0 on a non-backwards-compatible change.
 dnl Set to c+1:0:a+1 on a backwards-compatible change.
 dnl Set to c:r+1:a if the interface is unchanged.
-AC_SUBST([libexactreal_version_info], [8:0:0])
+AC_SUBST([libarbxx_version_info], [8:0:0])
 
 AC_CANONICAL_HOST
 
@@ -46,14 +46,6 @@ dnl so we just check for something from the standard library, i.e., that -lgmpxx
 dnl goes through
 AX_CXX_CHECK_LIB([gmpxx], [std::runtime_error::what () const], , AC_MSG_ERROR([GMP library for C++ not found]), [-lgmp -lmpfr -lflint])
 
-AC_CHECK_HEADERS([e-antic/renfxx.h], , AC_MSG_ERROR([E-ANTIC headers not found]))
-AC_CHECK_LIB([eantic], [renf_elem_clear], , AC_MSG_ERROR([E-ANTIC library not found]), [-lgmp -lmpfr -lflint])
-AX_CXX_CHECK_LIB([eanticxx], [eantic::renf_elem_class], , AC_MSG_ERROR([E-ANTIC library not found]), [-lgmp -lmpfr -lflint])
-AC_COMPILE_IFELSE(
-  [AC_LANG_PROGRAM(
-   [[#include <e-antic/renfxx.h>]],
-   [[const eantic::renf_class& K = eantic::renf_elem_class().parent();]])], , AC_MSG_ERROR([[E-ANTIC library incompatible, probably too old]]))
-
 dnl Our benchmarks use Google's C++ benchmark library.
 dnl We fail if they cannot be found but let the user disable it explicitly.
 AC_ARG_WITH([benchmark], AS_HELP_STRING([--without-benchmark], [Do not build C++ benchmarks that require google/benchmark]))
@@ -67,7 +59,7 @@ AM_CONDITIONAL([HAVE_BENCHMARK], [test "x$with_benchmark" = "xyes"])
 AC_ARG_WITH([version-script], AS_HELP_STRING([--with-version-script], [Only export a curated list of symbols in the shared library.]))
 AM_CONDITIONAL([HAVE_VERSION_SCRIPT], [test "x$with_version_script" = "xyes"])
 
-AC_CONFIG_HEADERS([exact-real/config.h])
+AC_CONFIG_HEADERS([arbxx/config.h])
 AC_CONFIG_FILES([Makefile src/Makefile test/Makefile benchmark/Makefile])
 
 AC_OUTPUT

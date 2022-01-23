@@ -1,7 +1,7 @@
-# This file lists the dependencies needed to build and test all of libexactreal.
+# This file lists the dependencies needed to build and test all of libarbxx.
 # # Create a conda environment with these dependencies preinstalled with:
 # conda env create -f environment.yml
-name: libexactreal-build
+name: libarbxx-build
 channels:
   - conda-forge
   - defaults
@@ -11,7 +11,6 @@ dependencies:
   - boost-cpp==1.74.0
   - coreutils
   - cxx-compiler
-  - libeantic>=1.0.2,<2
   - arb>=2.21,<2.22
   - gmp>6,<7
   - libtool

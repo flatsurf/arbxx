@@ -1,32 +1,32 @@
 /**********************************************************************
- *  This file is part of exact-real.
+ *  This file is part of arbxx.
  *
- *        Copyright (C) 2019 Vincent Delecroix
- *        Copyright (C) 2019 Julian Rüth
+ *        Copyright (C)      2019 Vincent Delecroix
+ *        Copyright (C) 2019-2022 Julian Rüth
  *
- *  exact-real is free software: you can redistribute it and/or modify
+ *  arbxx is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  exact-real is distributed in the hope that it will be useful,
+ *  arbxx is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with exact-real. If not, see <https://www.gnu.org/licenses/>.
+ *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
 #include <boost/lexical_cast.hpp>
 
-#include "../exact-real/arf.hpp"
+#include "../arbxx/arf.hpp"
 #include "external/catch2/single_include/catch2/catch.hpp"
 
 using boost::lexical_cast;
 using std::string;
 
-namespace exactreal::test {
+namespace arbxx::test {
 
 TEST_CASE("Create & Destroy Arf", "[arf]") { delete new Arf(); }
 
@@ -60,4 +60,4 @@ TEST_CASE("Floor & Ceil", "[arf]") {
   REQUIRE(Arf(.6).ceil() == 1);
 }
 
-}  // namespace exactreal::test
+}  // namespace arbxx::test

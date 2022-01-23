@@ -1,6 +1,6 @@
 export CXXFLAGS="$CXXFLAGS -g3"
 
-cd libexactreal
+cd libarbxx
 
 autoreconf -ivf
 

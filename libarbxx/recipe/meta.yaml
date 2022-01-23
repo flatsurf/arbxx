@@ -2,7 +2,7 @@
 {% set build_number = '0' %}
 
 package:
-  name: libexactreal
+  name: libarbxx
   version: {{ version }}
 
 source:
@@ -13,7 +13,7 @@ build:
   # e-antic is not available on Windows yet
   skip: True  # [win]
   run_exports:
-    - {{ pin_subpackage("libexactreal", max_pin="x") }}
+    - {{ pin_subpackage("libarbxx", max_pin="x") }}
 
 requirements:
   build:
@@ -24,15 +24,14 @@ requirements:
   host:
     - arb {{ arb }}
     - boost-cpp {{ boost_cpp }}
-    - libeantic >=1.0.0,<2
     - gmp {{ gmp }}
 
 test:
   commands:
-    - test -f ${PREFIX}/lib/libexactreal.so
+    - test -f ${PREFIX}/lib/libarbxx.so
 
 about:
-  home: https://github.com/flatsurf/exactreal
+  home: https://github.com/flatsurf/arbxx
   license: GPL-3.0-or-later
   license_file: COPYING
-  summary: Finite Real Submodules
+  summary: C++ Wrappers for Arb

@@ -1,21 +1,21 @@
 /**********************************************************************
- *  This file is part of exact-real.
+ *  This file is part of arbxx.
  *
  *        Copyright (C)      2019 Vincent Delecroix
  *        Copyright (C) 2019-2022 Julian Rüth
  *
- *  exact-real is free software: you can redistribute it and/or modify
+ *  arbxx is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  exact-real is distributed in the hope that it will be useful,
+ *  arbxx is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with exact-real. If not, see <https://www.gnu.org/licenses/>.
+ *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
 #include <boost/lexical_cast.hpp>
@@ -23,13 +23,15 @@
 #include <e-antic/renf_class.hpp>
 #include <e-antic/renf_elem_class.hpp>
 
-#include "../exact-real/arb.hpp"
+#include "../arbxx/arb.hpp"
 #include "external/catch2/single_include/catch2/catch.hpp"
 
 using boost::lexical_cast;
 using std::string;
 
-namespace exactreal::test {
+namespace arbxx::test {
+
+// TODO: Clean up testing.
 
 TEST_CASE("Create/Destroy Arb", "[arb]") {
   delete new Arb();
@@ -82,23 +84,23 @@ TEMPLATE_TEST_CASE("Relation Operators with Integers", "[arb]", unsigned short, 
 
   REQUIRE(((x < y) && *(x < y)));
 
-  // Not provided, see https://github.com/flatsurf/exact-real/pull/152
+  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
   // REQUIRE(((y > x) && *(y > x)));
 
   REQUIRE(((x <= y) && *(x <= y)));
 
-  // Not provided, see https://github.com/flatsurf/exact-real/pull/152
+  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
   // REQUIRE(((y >= x) && *(y >= x)));
 
   REQUIRE(((x == x) && *(x == x)));
   REQUIRE(((x != y) && *(x != y)));
 
-  // Not provided, see https://github.com/flatsurf/exact-real/pull/152
+  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
   // REQUIRE(((y > x) && !*(y < x)));
 
   REQUIRE(((x < y) && !*(x > y)));
 
-  // Not provided, see https://github.com/flatsurf/exact-real/pull/152
+  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
   // REQUIRE(((y >= x) && !*(y <= x)));
 
   REQUIRE(((x <= y) && !*(x >= y)));
@@ -159,4 +161,4 @@ TEST_CASE("Indeterminate Value", "[arb][indeterminate]") {
   REQUIRE(!(x <= 0));
 }
 
-}  // namespace exactreal::test
+}  // namespace arbxx::test
