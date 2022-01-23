@@ -341,6 +341,19 @@ std::optional<bool> operator>(const mpz_class& lhs, const Arb& rhs) { return Arb
 std::optional<bool> operator<=(const mpz_class& lhs, const Arb& rhs) { return Arb(lhs) <= rhs; }
 std::optional<bool> operator>=(const mpz_class& lhs, const Arb& rhs) { return Arb(lhs) >= rhs; }
 
+std::optional<bool> operator==(const Arb& lhs, const mpq_class& rhs) { return lhs == Arb(rhs); }
+std::optional<bool> operator!=(const Arb& lhs, const mpq_class& rhs) { return lhs != Arb(rhs); }
+std::optional<bool> operator<(const Arb& lhs, const mpq_class& rhs) { return lhs < Arb(rhs); }
+std::optional<bool> operator>(const Arb& lhs, const mpq_class& rhs) { return lhs > Arb(rhs); }
+std::optional<bool> operator<=(const Arb& lhs, const mpq_class& rhs) { return lhs <= Arb(rhs); }
+std::optional<bool> operator>=(const Arb& lhs, const mpq_class& rhs) { return lhs >= Arb(rhs); }
+std::optional<bool> operator==(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) == rhs; }
+std::optional<bool> operator!=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) != rhs; }
+std::optional<bool> operator<(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) < rhs; }
+std::optional<bool> operator>(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) > rhs; }
+std::optional<bool> operator<=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) <= rhs; }
+std::optional<bool> operator>=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) >= rhs; }
+
 Arb& Arb::operator=(const Arb& rhs) noexcept {
   arb_set(arb_t(), rhs.arb_t());
   return *this;

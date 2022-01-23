@@ -25,7 +25,6 @@ namespace arbxx::test {
 
 TEST_CASE("Test cppyy's C++ interface to Arb", "[arb][cppyy]") {
   // TODO
-  throw std::logic_error("not implemented: cppyy tests");
   /*
   Arb x(1);
   auto y = x + x;

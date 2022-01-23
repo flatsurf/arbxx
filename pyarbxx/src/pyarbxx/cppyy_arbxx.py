@@ -1,14 +1,7 @@
 r"""
 Python wrappers for arb powered by cppyy.
 
-Note that pyarbxx offers a better interface to work with arb. Use
-`pyarbxx.arbxx` if you need to directly manipulate the underlying C++
-objects::
-
->>> from pyarbxx import arbxx
->>> arbxx.Module[arbxx.IntegerRing].make([])
-ℤ-Module()
-
+TODO
 """
 # ********************************************************************
 #  This file is part of arbxx.
@@ -30,7 +23,6 @@ objects::
 # ********************************************************************
 
 import cppyy
-import gmpxxyy
 
 from cppyythonizations.pickling.cereal import enable_cereal
 from cppyythonizations.printing import enable_pretty_printing
@@ -64,49 +56,50 @@ if os.environ.get('PYEXACTREAL_CYSIGNALS', True):
     except ModuleNotFoundError:
         pass
 
-def enable_arithmetic(proxy, name):
-    r"""
-    Help cppyy discover arithmetic provided by boost::operators.
-
-    TESTS::
-
-        >>> from pyarbxx import ZZModule, RealNumber
-        >>> M = ZZModule(RealNumber.rational(1))
-        >>> x = M.gen(0)
-        >>> x + x
-        2
-        >>> x - x
-        0
-        >>> x * x
-        1
-        >>> x / x
-        1
-
-    """
-    for op in ['add', 'sub', 'mul', 'truediv']:
-        python_op = "__%s__" % (op,)
-        python_rop = "__r%s__" % (op,)
-
-        def unwrap_binary_optional(x):
-            if not hasattr(x, 'has_value'):
-                return x
-            if not x.has_value():
-                # e.g., when a division failed because x/y does not live in the coefficient ring
-                raise NotRepresentableError("result is not representable in this parent")
-            return x.value()
-
-        implementation = getattr(cppyy.gbl.arbxx.cppyy, op)
-        def binary(lhs, rhs, implementation=implementation):
-            return unwrap_binary_optional(implementation[type(lhs), type(rhs)](lhs, rhs))
-        def rbinary(rhs, lhs, implementation=implementation):
-            return unwrap_binary_optional(implementation[type(lhs), type(rhs)](lhs, rhs))
-
-        setattr(proxy, python_op, binary)
-        setattr(proxy, python_rop, rbinary)
-
-    setattr(proxy, "__neg__", lambda self: cppyy.gbl.arbxx.cppyy.neg(self))
-
-arithmetic_predicate = lambda proxy, name: name in ["Mag", "Arf", "Arb", "Acb", "ArbPoly", "AcbPoly", "ArbMat", "AcbMat"]
+# TODO: Make this work again.
+# def enable_arithmetic(proxy, name):
+#     r"""
+#     Help cppyy discover arithmetic provided by boost::operators.
+# 
+#     TESTS::
+# 
+#         >>> from pyarbxx import ZZModule, RealNumber
+#         >>> M = ZZModule(RealNumber.rational(1))
+#         >>> x = M.gen(0)
+#         >>> x + x
+#         2
+#         >>> x - x
+#         0
+#         >>> x * x
+#         1
+#         >>> x / x
+#         1
+# 
+#     """
+#     for op in ['add', 'sub', 'mul', 'truediv']:
+#         python_op = "__%s__" % (op,)
+#         python_rop = "__r%s__" % (op,)
+# 
+#         def unwrap_binary_optional(x):
+#             if not hasattr(x, 'has_value'):
+#                 return x
+#             if not x.has_value():
+#                 # e.g., when a division failed because x/y does not live in the coefficient ring
+#                 raise NotRepresentableError("result is not representable in this parent")
+#             return x.value()
+# 
+#         implementation = getattr(cppyy.gbl.arbxx.cppyy, op)
+#         def binary(lhs, rhs, implementation=implementation):
+#             return unwrap_binary_optional(implementation[type(lhs), type(rhs)](lhs, rhs))
+#         def rbinary(rhs, lhs, implementation=implementation):
+#             return unwrap_binary_optional(implementation[type(lhs), type(rhs)](lhs, rhs))
+# 
+#         setattr(proxy, python_op, binary)
+#         setattr(proxy, python_rop, rbinary)
+# 
+#     setattr(proxy, "__neg__", lambda self: cppyy.gbl.arbxx.cppyy.neg(self))
+# 
+# arithmetic_predicate = lambda proxy, name: name in ["Mag", "Arf", "Arb", "Acb", "ArbPoly", "AcbPoly", "ArbMat", "AcbMat"]
 
 def add_pythonization(pythonization, namespace, predicate=lambda *args: True):
     r"""
@@ -114,7 +107,7 @@ def add_pythonization(pythonization, namespace, predicate=lambda *args: True):
     """
     cppyy.py.add_pythonization(lambda proxy, name: predicate(proxy, name) and pythonization(proxy, name), namespace)
 
-add_pythonization(enable_arithmetic, "arbxx", arithmetic_predicate)
+# add_pythonization(enable_arithmetic, "arbxx", arithmetic_predicate)
 
 def enable_optional(proxy, name):
     if name in  ["Arb"]:
@@ -127,10 +120,8 @@ def enable_optional(proxy, name):
 
         for op in ["lt", "le", "eq", "ne", "gt", "ge"]:
             python_op = "__%s__"%(op,)
-            hidden_op = "_cppyy_%s"%(op,)
-            setattr(proxy, hidden_op, getattr(proxy, python_op))
-            def relation(lhs, rhs, op=hidden_op):
-                return unwrap_logical_optional(getattr(lhs, op)(rhs))
+            def relation(lhs, rhs, op=op):
+                return unwrap_logical_optional(getattr(cppyy.gbl.arbxx.cppyy, op)(lhs, rhs))
             setattr(proxy, python_op, relation)
 
 cppyy.py.add_pythonization(enable_optional, "arbxx")
@@ -144,3 +135,5 @@ cppyy.py.add_pythonization(lambda proxy, name: enable_cereal(proxy, name, ["arbx
 cppyy.add_include_path(os.path.join(os.path.dirname(__file__), 'include'))
 
 cppyy.include("arbxx/cppyy.hpp")
+
+arbxx = cppyy.gbl.arbxx

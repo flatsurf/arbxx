@@ -22,8 +22,8 @@
 
 #include <boost/type_traits/is_detected.hpp>
 #include <iosfwd>
-#include <memory>
 #include <sstream>
+#include <optional>
 
 #include "arf.hpp"
 #include "arb.hpp"
@@ -78,6 +78,26 @@ auto truediv(const S &lhs, const T &rhs) {
 
 template <typename T>
 auto neg(const T &value) { return -value; }
+
+// TODO: Report upstream. cppyy casts the result of a relational operator to
+// bool, i.e., it casts optional<bool> to bool which is just has_value.
+template <typename S, typename T>
+auto eq(const S& lhs, const T& rhs) { return lhs == rhs; }
+
+template <typename S, typename T>
+auto ne(const S& lhs, const T& rhs) { return lhs != rhs; }
+
+template <typename S, typename T>
+auto gt(const S& lhs, const T& rhs) { return lhs > rhs; }
+
+template <typename S, typename T>
+auto ge(const S& lhs, const T& rhs) { return lhs >= rhs; }
+
+template <typename S, typename T>
+auto lt(const S& lhs, const T& rhs) { return lhs < rhs; }
+
+template <typename S, typename T>
+auto le(const S& lhs, const T& rhs) { return lhs <= rhs; }
 
 }  // namespace cppyy
 
