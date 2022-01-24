@@ -24,7 +24,7 @@
     "setuptools": []
   },
   "conda_channels": ["conda-forge", "default"],
-  "repo_subdir": "arbxx",
+  "repo_subdir": "libarbxx",
   "build_command": [
     "autoreconf -ivf",
     "/bin/sh configure CXX='ccache c++'",
