@@ -13,7 +13,7 @@ clean-local:
 	-rm -rf pyarbxx/__pycache__ pyarbxx.egg-info build .pytest_cache
 
 BUILT_SOURCES = setup.py MANIFEST.in
-EXTRA_DIST = setup.py.in MANIFEST.in.in pyarbxx/__init__.py pyarbxx/exact_reals.py pyarbxx/cppyy_arbxx.py pyarbxx/include
+EXTRA_DIST = setup.py.in MANIFEST.in.in pyarbxx/__init__.py pyarbxx/cppyy_arbxx.py pyarbxx/include
 CLEANFILES = setup.py MANIFEST.in
 $(builddir)/setup.py: $(srcdir)/setup.py.in Makefile
 	sed -e 's,[@]abs_top_srcdir[@],$(abs_top_srcdir),g' -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' < $< > $@

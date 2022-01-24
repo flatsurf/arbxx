@@ -25,6 +25,7 @@ requirements:
     - python
     - boost-cpp
     - cppyy
+    - cppyythonizations >=1.1.3,<2
 
 test:
   imports:
