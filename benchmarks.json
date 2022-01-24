@@ -1,0 +1,35 @@
+{
+    "ArbBenchmark.track_time": {
+        "code": "class <locals>:\n    def run_benchmark(self, params=None):\n        filter = f\"{name}\"\n        if params:\n            filter = f\"{name}/{params.replace(', ', '/')}\"\n        out = subprocess.check_output([benchmark, f\"--benchmark_filter={filter}\", \"--benchmark_format=json\"])\n    \n        import json\n        out = json.loads(out)\n    \n        assert(len(out[\"benchmarks\"]) == 1)\n        time = out[\"benchmarks\"][0][\"cpu_time\"]\n        unit = out[\"benchmarks\"][0][\"time_unit\"]\n    \n        if unit == \"s\":\n            time *= 1000\n            unit = \"ms\"\n        if unit == \"ms\":\n            time *= 1000\n            unit = \"us\"\n        if unit == \"us\":\n            time *= 1000\n            unit = \"ns\"\n    \n        assert(unit == \"ns\")\n    \n        return time",
+        "name": "ArbBenchmark.track_time",
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "'Create'",
+                "'CreateMove, 53, 10'",
+                "'CreateMove, 65536, 1024'",
+                "'CreateCopy, 53, 10'",
+                "'CreateCopy, 65536, 1024'",
+                "'Assign_C, 53, 10'",
+                "'Assign_C, 65536, 1024'",
+                "'Assign, 53, 10'",
+                "'Assign, 65536, 1024'",
+                "'AssignMove, 53, 10'",
+                "'AssignMove, 65536, 1024'",
+                "'Addition_C, 53, 10'",
+                "'Addition_C, 65536, 1024'",
+                "'Arithmetic_C, 53, 10'",
+                "'Arithmetic_C, 65536, 1024'",
+                "'Arithmetic_C_optimized, 53, 10'",
+                "'Arithmetic_C_optimized, 65536, 1024'"
+            ]
+        ],
+        "timeout": 60.0,
+        "type": "track",
+        "unit": "ns",
+        "version": "0"
+    },
+    "version": 2
+}
