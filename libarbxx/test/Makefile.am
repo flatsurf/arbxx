@@ -1,3 +1,9 @@
+if HAVE_BYEXAMPLE
+    MAYBE_BYEXAMPLE = byexample
+endif
+
+SUBDIRS = $(MAYBE_BYEXAMPLE)
+
 check_PROGRAMS = arb arf cereal cppyy
 
 TESTS = $(check_PROGRAMS)

@@ -1,21 +1,21 @@
 lib_LTLIBRARIES = libarbxx.la
 
-libarbxx_la_SOURCES =               \
+libarbxx_la_SOURCES =                   \
     arb.cc                              \
     arf.cc
 
 libarbxx_la_LDFLAGS = -version-info $(libarbxx_version_info)
 
 if HAVE_VERSION_SCRIPT
-libarbxx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libarbxx.map
+libarbxx_la_LDFLAGS += -Wl,--version-script=$(srcdir)/libarbxx.map
 
 EXTRA_libarbxx_la_DEPENDENCIES = $(srcdir)/libarbxx.map
 endif
 
 nobase_pkginclude_HEADERS =                                  \
-    ../arbxx/arb.hpp                                    \
-    ../arbxx/arf.hpp                                    \
-    ../arbxx/cereal.hpp                                 \
+    ../arbxx/arb.hpp                                         \
+    ../arbxx/arf.hpp                                         \
+    ../arbxx/cereal.hpp                                      \
     ../arbxx/cppyy.hpp
 
 noinst_HEADERS =                                               \

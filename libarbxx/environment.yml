@@ -6,12 +6,14 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - arb>=2.21,<2.22
   - automake
   - benchmark
   - boost-cpp==1.74.0
+  - byexample
   - coreutils
+  - cppyy
   - cxx-compiler
-  - arb>=2.21,<2.22
   - gmp>6,<7
   - libtool
   - make

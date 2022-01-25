@@ -42,16 +42,16 @@ namespace arbxx {
 ///
 ///     arf_add(x, x, y, 64, ARF_RND_NEAR);
 ///
-/// TODO: Explain more magic.
+/// Once a precision and rounding direction have been fixed, binary arithmetic
+/// operators are available.
+/// 
+///     arbxx::Arf::precision(64);
+///     arbxx::Arf::rounding(arbxx::Arf::Round::ARF_RND_NEAR);
 ///
-/// TODO: Are we going to do this?
-/// Note that methods here are usually named as their counterparts in arf.h with
-/// the leading arf_ removed.
+///     auto z = x + y;
 ///
-/// TODO: Do we want to expose?
-/// Note that many methods provided by arb's C API are not yet provided by this
-/// C++ wrapper. If something is missing for you, please let us know on our
-/// [GitHub issues page](https://github.com/flatsurf/arbxx/issues).
+/// Note that these operators are slightly less efficient than calling the
+/// corresponding C function from Arb directly. (See comments below.)
 class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
                          boost::totally_ordered<Arf, short>,
                          boost::totally_ordered<Arf, unsigned short>,
