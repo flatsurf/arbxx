@@ -9,9 +9,9 @@
 # directly and pass a script to it as a parameter to keep DYLD_LIBRARY_PATH
 # alive.
 
-# Resolve #include <exact-real/*.hpp> relative to libexactreal in the source tree and
-# resolve #include "local.h" relative to libexactreal/exact-real in the build tree.
-export EXTRA_CLING_ARGS="-I@abs_srcdir@/../.. -I@abs_builddir@/../../exact-real -std=c++17 -Wno-unused-comparison $EXTRA_CLING_ARGS"
+# Resolve #include <arbxx/*.hpp> relative to libexactreal in the source tree and
+# resolve #include "local.h" relative to libexactreal/arbxx in the build tree.
+export EXTRA_CLING_ARGS="-I@abs_srcdir@/../.. -I@abs_builddir@/../../arbxx -std=c++17 -Wno-unused-comparison $EXTRA_CLING_ARGS"
 
 # Load libexactreal.so from our build tree.
 export LD_LIBRARY_PATH="@abs_builddir@/../../src/.libs/:@abs_builddir@/../../srcxx/.libs/:$LD_LIBRARY_PATH"

@@ -9,7 +9,7 @@
 # sanitize DYLD_LIBRARY_PATH before following shebangs. Why DYLD_LIBRARY_PATH
 # is absolutely necessary to make things work on macOS is still unclear to us.
 # Without it, i.e., when just telling cppyy/cling with `#pragma cling
-# add_library_path` where `libexactreal.dylib` live locally, the libraries load
+# add_library_path` where `libarbxx.dylib` live locally, the libraries load
 # but some symbols in these libraries fail to resolve mysteriously later.
 
 export PATH="@abs_builddir@/bin:$PATH"
