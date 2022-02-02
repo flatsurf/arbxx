@@ -37,7 +37,7 @@ namespace arbxx {
 ///     a + b
 ///     // -> 3.00000
 ///
-/// When the precision object goes out of scope, i.e., when its constructor is
+/// When the precision object goes out of scope, i.e., when its destructor is
 /// called, the precision is reset to the previous value. Note that objects
 /// must be destructed in the same order that they were constructed.
 class LIBARBXX_API Precision {
