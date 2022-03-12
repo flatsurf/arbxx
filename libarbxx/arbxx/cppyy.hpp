@@ -35,21 +35,6 @@ std::ostream &operator<<(std::ostream &, const arbxx::Arf &);
 
 namespace cppyy {
 
-// cppyy has trouble looking up very complicated operators so we provide
-// some stubs that help it get on the right track:
-template <typename T>
-Arb eval(T expression, prec prec) {
-  Arb ret = std::move(expression)(prec);
-  return ret;
-}
-
-template <typename T>
-Arf eval(T expression, prec prec, Arf::Round round) {
-  Arf ret;
-  ret = std::move(expression)(prec, round);
-  return ret;
-}
-
 template <typename S, typename T>
 using truediv_t = decltype(std::declval<S>().truediv(std::declval<T>()));
 
