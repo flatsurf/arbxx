@@ -153,35 +153,52 @@ class CxxInterpreter(byexample.runner.ExampleRunner):
     def _run(cls, connection):
         import cppyy
 
-        while True:
-            try:
-                source, = connection.recv()
-            except EOFError:
-                return
+        try:
+            while True:
+                try:
+                    source, = connection.recv()
+                except EOFError:
+                    return
 
-            lines = source.split('\n')
-            definitions = [line for line in lines if line.startswith('#include')]
-            definitions.append("#include <iostream>")
+                lines = source.split('\n')
+                definitions = [line for line in lines if line.startswith('#include')]
+                definitions.append("#include <iostream>")
 
-            executables = ["std::cout << std::setprecision(6);"] + [line for line in lines if not line.startswith('#include') and line]
+                executables = ["std::cout << std::setprecision(6);"] + [line for line in lines if not line.startswith('#include') and line]
 
-            if executables and not executables[-1].endswith(';'):
-                executables[-1] = f"std::cout << std::boolalpha << ({executables[-1]});"
+                if executables and not executables[-1].endswith(';'):
+                    executables[-1] = f"std::cout << std::boolalpha << ({executables[-1]});"
 
-            exception = None
+                exception = None
 
-            import py.io
-            capture = py.io.StdCaptureFD()
+                import py.io
+                capture = py.io.StdCaptureFD()
 
-            try:
-                cppyy.cppdef('\n'.join(definitions))
-                cppyy.cppexec('\n'.join(executables))
-            except Exception as e:
-                exception = e
+                try:
+                    cppyy.cppdef('\n'.join(definitions))
+                    cppyy.cppexec('\n'.join(executables))
+                except Exception as e:
+                    exception = CxxInterpreter._serialize_exception(e)
 
-            stdout, stderr = capture.reset()
+                stdout, stderr = capture.reset()
 
-            connection.send((stdout, stderr, exception))
+                connection.send((stdout, stderr, exception))
+        except Exception as e:
+            import sys
+            print("Interpreter loop in subprocess crashed with the following exception. Stopping interpreter.", file=sys.stderr)
+
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+            sys.stderr.flush()
+
+    @classmethod
+    def _serialize_exception(cls, exception):
+        import cppyy
+        if isinstance(exception, cppyy.gbl.std.invalid_argument):
+            exception = ValueError(exception.what())
+        elif isinstance(exception, cppyy.gbl.std.exception):
+            exception = Exception(exception.what())
+        return exception
 
     def initialize(self, options):
         import os.path
@@ -199,7 +216,7 @@ class CxxInterpreter(byexample.runner.ExampleRunner):
         self._parent_connection.send((example.source,))
         stdout, stderr, exception = self._parent_connection.recv()
         if exception is not None:
-            raise exception
+            return str(exception)
         if stderr is not None:
             import sys
             print(stderr, file=sys.stderr)
