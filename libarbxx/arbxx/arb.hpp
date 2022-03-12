@@ -73,7 +73,7 @@ inline constexpr const prec ARB_PRECISION_FAST = 64;
 /// Note that many methods provided by arb's C API are not yet provided by this
 /// C++ wrapper. If something is missing for you, please let us know on our
 /// [GitHub issues page](https://github.com/flatsurf/arbxx/issues).
-class LIBARBXX_API Arb {
+class LIBARBXX_API Arb : boost::arithmetic<Arb> {
  public:
   /// Create an exact zero element.
   ///
@@ -389,6 +389,12 @@ class LIBARBXX_API Arb {
   LIBARBXX_API friend std::optional<bool> operator<=(const mpq_class&, const Arb&);
   LIBARBXX_API friend std::optional<bool> operator>=(const mpq_class&, const Arb&);
 
+  /// TODO
+  LIBARBXX_API friend Arb& operator+=(Arb&, const Arb&);
+  LIBARBXX_API friend Arb& operator-=(Arb&, const Arb&);
+  LIBARBXX_API friend Arb& operator*=(Arb&, const Arb&);
+  LIBARBXX_API friend Arb& operator/=(Arb&, const Arb&);
+
   /// Return whether this Arb element exactly represents a floating point
   /// number, i.e., whether its radius is zero, see [arb_is_exact]().
   ///
@@ -452,9 +458,17 @@ class LIBARBXX_API Arb {
   /// manipulation with the C API of Arb.
   ::arb_t& arb_t();
 
+  inline operator ::arb_t&() {
+    return t;
+  }
+
   /// Return a const reference to the underlying [arb_t]() element for direct
   /// manipulation with the C API of Arb.
   const ::arb_t& arb_t() const;
+
+  inline operator const ::arb_t&() const {
+    return t;
+  }
 
   /// Return an exact zero element, i.e., the ball of radius zero centered at
   /// zero.
