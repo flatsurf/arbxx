@@ -4,7 +4,7 @@ endif
 
 SUBDIRS = $(MAYBE_BYEXAMPLE)
 
-check_PROGRAMS = arb arf cereal cppyy
+check_PROGRAMS = arb arf cereal cppyy precision rounding
 
 TESTS = $(check_PROGRAMS)
 
@@ -12,6 +12,8 @@ arb_SOURCES = arb.test.cc arb.hpp main.cc
 arf_SOURCES = arf.test.cc arf.hpp main.cc
 cereal_SOURCES = cereal.test.cc arb.hpp arf.hpp main.cc
 cppyy_SOURCES = cppyy.test.cc main.cc
+precision_SOURCES = precision.test.cc main.cc
+rounding_SOURCES = rounding.test.cc main.cc
 
 # We vendor the header-only library Cereal (serialization with C++ to be able
 # to run the tests even when cereal is not installed.
@@ -29,3 +31,5 @@ AM_LDFLAGS = $(builddir)/../src/libarbxx.la
 AM_LDFLAGS += -lgmpxx -lgmp
 # arb.hpp & arf.hpp use flint
 AM_LDFLAGS += -lflint
+# tests use threading
+AM_LDFLAGS += -lpthread

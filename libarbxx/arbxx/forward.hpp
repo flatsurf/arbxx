@@ -29,6 +29,8 @@
 #include "local.hpp"
 
 namespace arbxx {
+class Precision;
+class Rounding;
 
 class Mag;
 class Arf;

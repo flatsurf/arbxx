@@ -19,6 +19,7 @@
  *********************************************************************/
 
 #include "../arbxx/arb.hpp"
+#include "../arbxx/precision.hpp"
 
 #include <arb.h>
 #include <flint/fmpz.h>
@@ -353,6 +354,26 @@ std::optional<bool> operator<(const mpq_class& lhs, const Arb& rhs) { return Arb
 std::optional<bool> operator>(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) > rhs; }
 std::optional<bool> operator<=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) <= rhs; }
 std::optional<bool> operator>=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) >= rhs; }
+
+Arb& operator+=(Arb& lhs, const Arb& rhs) {
+  arb_add(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
+
+Arb& operator-=(Arb& lhs, const Arb& rhs) {
+  arb_sub(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, const Arb& rhs) {
+  arb_mul(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
+
+Arb& operator/=(Arb& lhs, const Arb& rhs) {
+  arb_div(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
 
 Arb& Arb::operator=(const Arb& rhs) noexcept {
   arb_set(arb_t(), rhs.arb_t());

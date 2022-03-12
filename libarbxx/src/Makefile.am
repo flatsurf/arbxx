@@ -2,7 +2,9 @@ lib_LTLIBRARIES = libarbxx.la
 
 libarbxx_la_SOURCES =                   \
     arb.cc                              \
-    arf.cc
+    arf.cc                              \
+    precision.cc                        \
+    rounding.cc
 
 libarbxx_la_LDFLAGS = -version-info $(libarbxx_version_info)
 
@@ -15,6 +17,8 @@ endif
 nobase_pkginclude_HEADERS =                                  \
     ../arbxx/arb.hpp                                         \
     ../arbxx/arf.hpp                                         \
+    ../arbxx/rounding.hpp                                    \
+    ../arbxx/precision.hpp                                   \
     ../arbxx/cereal.hpp                                      \
     ../arbxx/cppyy.hpp
 
