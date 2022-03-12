@@ -19,6 +19,8 @@
  *********************************************************************/
 
 #include "../arbxx/arf.hpp"
+#include "../arbxx/precision.hpp"
+#include "../arbxx/rounding.hpp"
 
 #include <arf.h>
 
@@ -27,6 +29,7 @@
 #include "util/integer.ipp"
 
 namespace {
+
 std::pair<mpz_class, mpz_class> mantissa_exponent(const arf_t arf) {
   fmpz_t mantissa;
   fmpz_t exponent;
@@ -48,7 +51,6 @@ std::pair<mpz_class, mpz_class> mantissa_exponent(const arf_t arf) {
 }  // namespace
 
 namespace arbxx {
-Arf::Arf() noexcept { arf_init(t); }
 
 Arf::Arf(const std::string& mantissa, int base, long exponent) : Arf() {
   fmpz_t m, e;
@@ -76,22 +78,6 @@ Arf::Arf(const mpz_class& mantissa, long exponent) : Arf() {
   fmpz_clear(m);
 }
 
-Arf::Arf(short value) : Arf(static_cast<long>(value)) {}
-
-Arf::Arf(unsigned short value) : Arf(static_cast<unsigned long>(value)) {}
-
-Arf::Arf(int value) : Arf(static_cast<long>(value)) {}
-
-Arf::Arf(unsigned int value) : Arf(static_cast<unsigned long>(value)) {}
-
-Arf::Arf(long value) : Arf() {
-  arf_set_si(t, value);
-}
-
-Arf::Arf(unsigned long value) : Arf() {
-  arf_set_ui(t, value);
-}
-
 Arf::Arf(long long value) : Arf() {
   *this = value;
 }
@@ -100,17 +86,7 @@ Arf::Arf(unsigned long long value) : Arf() {
   *this = value;
 }
 
-Arf::Arf(const Arf& value) noexcept : Arf() { arf_set(t, value.t); }
-
 Arf::Arf(double value) : Arf() { arf_set_d(t, value); }
-
-Arf::Arf(Arf&& value) noexcept : Arf() { this->operator=(std::move(value)); }
-
-Arf::~Arf() noexcept { arf_clear(t); }
-
-arf_t& Arf::arf_t() { return t; }
-
-const arf_t& Arf::arf_t() const { return t; }
 
 Arf::operator double() const { return arf_get_d(t, ARF_RND_NEAR); }
 
@@ -252,6 +228,26 @@ Arf Arf::operator-() const {
   return ret;
 }
 
+Arf& operator+=(Arf& lhs, const Arf& rhs) {
+  arf_add(lhs, lhs, rhs, Precision::current(), Rounding::current());
+  return lhs;
+}
+
+Arf& operator-=(Arf& lhs, const Arf& rhs) {
+  arf_sub(lhs, lhs, rhs, Precision::current(), Rounding::current());
+  return lhs;
+}
+
+Arf& operator*=(Arf& lhs, const Arf& rhs) {
+  arf_mul(lhs, lhs, rhs, Precision::current(), Rounding::current());
+  return lhs;
+}
+
+Arf& operator/=(Arf& lhs, const Arf& rhs) {
+  arf_div(lhs, lhs, rhs, Precision::current(), Rounding::current());
+  return lhs;
+}
+
 Arf Arf::abs() const {
   Arf ret;
   arf_abs(ret.t, t);
@@ -300,10 +296,6 @@ Arf Arf::randtest(flint::frandxx& state, prec precision, prec magbits) {
   Arf ret;
   arf_randtest(ret.arf_t(), state._data(), precision, magbits);
   return ret;
-}
-
-void swap(Arf& a, Arf& b) {
-  arf_swap(a.arf_t(), b.arf_t());
 }
 
 std::ostream& operator<<(std::ostream& os, const Arf& self) {
