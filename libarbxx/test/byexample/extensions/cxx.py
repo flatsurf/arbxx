@@ -14,7 +14,7 @@ parsing for us.
 ######################################################################
 #  This file is part of arbxx.
 #
-#        Copyright (C) 2021 Julian Rüth
+#        Copyright (C) 2021-2022 Julian Rüth
 #
 #  arbxx is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Lesser General Public License as published by
@@ -36,6 +36,7 @@ from byexample.common import constant
 import byexample.modules.cpp
 
 stability = 'experimental'
+
 
 class MarkdownCxxDelimiter(ZoneDelimiter):
     r"""
@@ -60,6 +61,7 @@ class MarkdownCxxDelimiter(ZoneDelimiter):
             ''', re.DOTALL | re.MULTILINE | re.VERBOSE)
 
     def __repr__(self): return "```c++ ... ``` or ```cpp ... ``` or ```c ... ```"
+
 
 class MarkdownHppDelimiter(ZoneDelimiter):
     r"""
@@ -93,6 +95,7 @@ class MarkdownHppDelimiter(ZoneDelimiter):
             ''', re.DOTALL | re.MULTILINE | re.VERBOSE)
 
     def __repr__(self): return "///\n///    ..."
+
 
 class CxxPromptFinder(byexample.modules.cpp.CppPromptFinder):
     r"""
@@ -136,10 +139,11 @@ class CxxPromptFinder(byexample.modules.cpp.CppPromptFinder):
     def _remove_expected(self, snippet):
         marker = "// -> "
         lines = snippet.split("\n")
-        lines = [ line[len(marker):] if line.startswith(marker) else line for line in lines]
+        lines = [line[len(marker):] if line.startswith(marker) else line for line in lines]
         return '\n'.join(lines)
 
     def __repr__(self): return "Unprefixed C++ Prompt Finder"
+
 
 class CxxInterpreter(byexample.runner.ExampleRunner):
     r"""
@@ -175,15 +179,16 @@ class CxxInterpreter(byexample.runner.ExampleRunner):
                 capture = py.io.StdCaptureFD()
 
                 try:
-                    cppyy.cppdef('\n'.join(definitions))
-                    cppyy.cppexec('\n'.join(executables))
-                except Exception as e:
-                    exception = CxxInterpreter._serialize_exception(e)
-
-                stdout, stderr = capture.reset()
+                    try:
+                        cppyy.cppdef('\n'.join(definitions))
+                        cppyy.cppexec('\n'.join(executables))
+                    except Exception as e:
+                        exception = CxxInterpreter._serialize_exception(e)
+                finally:
+                    stdout, stderr = capture.reset()
 
                 connection.send((stdout, stderr, exception))
-        except Exception as e:
+        except Exception:
             import sys
             print("Interpreter loop in subprocess crashed with the following exception. Stopping interpreter.", file=sys.stderr)
 
@@ -214,7 +219,12 @@ class CxxInterpreter(byexample.runner.ExampleRunner):
 
     def run(self, example, options):
         self._parent_connection.send((example.source,))
-        stdout, stderr, exception = self._parent_connection.recv()
+
+        try:
+            stdout, stderr, exception = self._parent_connection.recv()
+        except Exception as e:
+            raise Exception(f"Interpreter crashed while evaluating {example}", e)
+
         if exception is not None:
             return str(exception)
         if stderr is not None:

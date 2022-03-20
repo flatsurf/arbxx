@@ -10,9 +10,11 @@ dependencies:
   - automake
   - benchmark
   - boost-cpp==1.74.0
-  - byexample
+  # see https://github.com/byexamples/byexample/issues/220
+  - byexample==10.4.0
   - coreutils
-  - cppyy
+  # see https://github.com/wlav/cppyy/issues/32, with newer versions we cannot test operators that throw.
+  - cppyy==1.9.5
   - cxx-compiler
   - gmp>6,<7
   - libtool
