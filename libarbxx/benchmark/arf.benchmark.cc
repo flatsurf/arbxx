@@ -22,6 +22,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../arbxx/arf.hpp"
+#include "../arbxx/precision.hpp"
+#include "../arbxx/rounding.hpp"
 
 namespace arbxx::test {
 
@@ -31,6 +33,7 @@ struct ArfBenchmark_libarbxx : public benchmark::Fixture {};
 /// Benchmarks using the original C interface provided by Arb.
 struct ArfBenchmark_libarb : public benchmark::Fixture {};
 
+/* Benchmark the Default Constructor */
 BENCHMARK_DEFINE_F(ArfBenchmark_libarbxx, DefaultConstructor)(benchmark::State& state) {
   for (auto _ : state)
     benchmark::DoNotOptimize(Arf{});
@@ -46,6 +49,7 @@ BENCHMARK_DEFINE_F(ArfBenchmark_libarb, DefaultConstructor)(benchmark::State& st
 }
 BENCHMARK_REGISTER_F(ArfBenchmark_libarb, DefaultConstructor);
 
+/* Benchmark the Copy Constructor */
 BENCHMARK_DEFINE_F(ArfBenchmark_libarbxx, CopyConstructor)(benchmark::State& state) {
   Arf a;
 
@@ -69,6 +73,7 @@ BENCHMARK_DEFINE_F(ArfBenchmark_libarb, CopyConstructor)(benchmark::State& state
 }
 BENCHMARK_REGISTER_F(ArfBenchmark_libarb, CopyConstructor);
 
+/* Benchmark the Move Constructor */
 BENCHMARK_DEFINE_F(ArfBenchmark_libarbxx, MoveConstructor)(benchmark::State& state) {
   for (auto _ : state) {
     Arf a;
@@ -90,6 +95,7 @@ BENCHMARK_DEFINE_F(ArfBenchmark_libarb, MoveConstructor)(benchmark::State& state
 }
 BENCHMARK_REGISTER_F(ArfBenchmark_libarb, MoveConstructor);
 
+/* Benchmark the Constructor from int */
 BENCHMARK_DEFINE_F(ArfBenchmark_libarbxx, IntConstructor)(benchmark::State& state) {
   for (auto _ : state) {
     benchmark::DoNotOptimize(Arf{1337});
@@ -108,6 +114,7 @@ BENCHMARK_DEFINE_F(ArfBenchmark_libarb, IntConstructor)(benchmark::State& state)
 }
 BENCHMARK_REGISTER_F(ArfBenchmark_libarb, IntConstructor);
 
+/* Benchmark the Constructor from long long */
 BENCHMARK_DEFINE_F(ArfBenchmark_libarbxx, LongLongConstructor)(benchmark::State& state) {
   const long long value = state.range(0);
 
@@ -135,5 +142,70 @@ BENCHMARK_DEFINE_F(ArfBenchmark_libarb, LongLongConstructor)(benchmark::State& s
   fmpz_clear(value);
 }
 BENCHMARK_REGISTER_F(ArfBenchmark_libarb, LongLongConstructor)->Arg(0)->Arg(std::numeric_limits<long long>::max());
+
+/* Benchmark the Binary Operator Arf + Arf */
+BENCHMARK_DEFINE_F(ArfBenchmark_libarbxx, ArfPlusArf)(benchmark::State& state) {
+  const Arf a{1};
+  const Arf b{2};
+
+  arbxx::Precision prec{64};
+  arbxx::Rounding round{ARF_RND_NEAR};
+
+  for (auto _ : state) {
+    benchmark::DoNotOptimize(a + b);
+  }
+}
+BENCHMARK_REGISTER_F(ArfBenchmark_libarbxx, ArfPlusArf);
+
+BENCHMARK_DEFINE_F(ArfBenchmark_libarb, ArfPlusArf)(benchmark::State& state) {
+  arf_t a;
+  arf_init_set_ui(a, 1);
+
+  arf_t b;
+  arf_init_set_ui(b, 2);
+
+  for (auto _ : state) {
+    arf_t c;
+    arf_init(c);
+
+    arf_add(c, a, b, 64, ARF_RND_NEAR);
+
+    arf_clear(c);
+  }
+
+  arf_clear(b);
+  arf_clear(a);
+}
+BENCHMARK_REGISTER_F(ArfBenchmark_libarb, ArfPlusArf);
+
+/* Benchmark the Binary Operator Arf += Arf */
+BENCHMARK_DEFINE_F(ArfBenchmark_libarbxx, ArfIPlusArf)(benchmark::State& state) {
+  Arf a{1};
+  const Arf b{2};
+
+  arbxx::Precision prec{64};
+  arbxx::Rounding round{ARF_RND_NEAR};
+
+  for (auto _ : state) {
+    benchmark::DoNotOptimize(a += b);
+  }
+}
+BENCHMARK_REGISTER_F(ArfBenchmark_libarbxx, ArfIPlusArf);
+
+BENCHMARK_DEFINE_F(ArfBenchmark_libarb, ArfIPlusArf)(benchmark::State& state) {
+  arf_t a;
+  arf_init_set_ui(a, 1);
+
+  arf_t b;
+  arf_init_set_ui(b, 2);
+
+  for (auto _ : state) {
+    arf_add(a, a, b, 64, ARF_RND_NEAR);
+  }
+
+  arf_clear(b);
+  arf_clear(a);
+}
+BENCHMARK_REGISTER_F(ArfBenchmark_libarb, ArfIPlusArf);
 
 }

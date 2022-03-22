@@ -18,10 +18,13 @@
  *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
+#include <arf.h>
 #include <boost/lexical_cast.hpp>
 #include <limits>
 
 #include "../arbxx/arf.hpp"
+#include "../arbxx/rounding.hpp"
+#include "../arbxx/precision.hpp"
 
 #include "external/catch2/single_include/catch2/catch.hpp"
 
@@ -153,7 +156,7 @@ TEST_CASE("Arf", "[arf]") {
     REQUIRE(static_cast<double>(Arf(1.)) == 1.);
     REQUIRE(static_cast<double>(Arf(1./.0)) == 1./.0);
     REQUIRE(static_cast<double>(Arf(-1./.0)) == -1./.0);
-    REQUIRE(static_cast<double>(Arf(.0/.0)) == .0/.0);
+    REQUIRE(isnan(static_cast<double>(Arf(.0/.0))));
   }
 
   SECTION("Relational Operators") {
@@ -171,6 +174,69 @@ TEST_CASE("Arf", "[arf]") {
     REQUIRE(!(x >= y));
     REQUIRE(!(x == y));
     REQUIRE(!(x != x));
+  }
+
+  SECTION("Binary Operators") {
+    auto& a = GENERATE_REF(take(64, arfs(state)));
+    auto& b = GENERATE_REF(take(64, arfs(state)));
+
+    CAPTURE(a, b);
+
+    Rounding rounding{ARF_RND_NEAR};
+    Precision precision{64};
+
+    SECTION("operator+") {
+      if (!arf_is_nan(a)) {
+        REQUIRE(a + Arf(0) == a);
+        REQUIRE(Arf(0) + a == a);
+        if (arf_is_inf(a)) {
+          REQUIRE(arf_is_nan(a + (-a)));
+        } else {
+          REQUIRE(a + (-a) == 0);
+        }
+        if (!arf_is_nan(b)) {
+          if (arf_is_inf(a) && a == -b) {
+            REQUIRE(arf_is_nan(a + b));
+          } else {
+            REQUIRE(a + b == b + a);
+          }
+        }
+      }
+    }
+
+    SECTION("operator-") {
+      if (!arf_is_nan(a)) {
+        if (!arf_is_nan(b)) {
+          REQUIRE(a - b == -(b - a));
+        }
+
+        if (!arf_is_inf(a)) {
+          REQUIRE(a - a == 0);
+        }
+      }
+    }
+
+    SECTION("operator*") {
+      if (!arf_is_nan(a)) {
+        if (!arf_is_inf(a)) {
+          REQUIRE(a * Arf(0) == 0);
+          REQUIRE(Arf(0) * a == 0);
+        }
+
+        REQUIRE(a * Arf(1) == a);
+        REQUIRE(Arf(1) * a == a);
+
+        if (!arf_is_nan(b)) {
+          REQUIRE(a * b == b * a);
+        }
+      }
+    }
+
+    SECTION("operator/") {
+      if (!arf_is_nan(a)) {
+        REQUIRE(a / Arf{1} == a);
+      }
+    }
   }
 
   SECTION("Printing") {

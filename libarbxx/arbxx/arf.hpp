@@ -52,7 +52,7 @@ namespace arbxx {
 ///     // -> No rounding has been specified in this scope.
 ///
 /// They only become available once a precision and a rounding direction have been fixed.
-/// 
+///
 ///     #include <arbxx/precision.hpp>
 ///     #include <arbxx/rounding.hpp>
 ///
@@ -343,7 +343,41 @@ class LIBARBXX_API Arf : boost::arithmetic<Arf>,
   LIBARBXX_API friend bool operator>(const Arf&, const mpz_class&);
   LIBARBXX_API friend bool operator==(const Arf&, const mpz_class&);
 
-  /// TODO
+  /// The binary operators `+`, `-`, `*`, `/` are available.
+  ///
+  ///     #include <arbxx/precision.hpp>
+  ///     #include <arbxx/rounding.hpp>
+  ///
+  ///     arbxx::Precision prec{64};
+  ///     arbxx::Rounding round{ARF_RND_NEAR};
+  ///
+  ///     arbxx::Arf x{1}, y{2};
+  ///
+  ///     x + y
+  ///     // -> 3
+  ///
+  ///     x - y
+  ///     // -> -1
+  ///
+  ///     x * y
+  ///     // -> 2
+  ///
+  ///     x / y
+  ///     // -> 0.5=1p-1
+  ///
+  /// For small operands, these operators can be much slower (factor 2) than
+  /// using the corresponding C API directly, i.e., [arf_add](), [arf_sub](),
+  /// [arf_mul](), [arf_div](). This is essentially due to call overhead and
+  /// also because an additional temporary is needed.
+  ///
+  /// There are also inplace operators that are slightly faster because they do
+  /// not need the temporary, but still the call overhead can be substantial.
+  ///
+  ///     x += y;
+  ///     x -= y;
+  ///     x *= y;
+  ///     x /= y;
+  ///
   LIBARBXX_API friend Arf& operator+=(Arf&, const Arf&);
   LIBARBXX_API friend Arf& operator-=(Arf&, const Arf&);
   LIBARBXX_API friend Arf& operator*=(Arf&, const Arf&);
