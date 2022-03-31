@@ -426,20 +426,45 @@ class LIBARBXX_API Arf : boost::arithmetic<Arf>,
   }
 
   /// Return a reference to the underlying [arf_t]() element for direct
-  /// manipulation with C API of Arb.
+  /// manipulation with the C API of Arb.
+  ///
+  ///     arbxx::Arf x;
+  ///     arf_set_ui(x.arf_t(), 1);
+  ///     x
+  ///     // -> 1
+  ///
   inline ::arf_t& arf_t() { return *this; }
 
+  /// Implicitly cast this element to the underlying [::arf_t]() for direct
+  /// manipulation with the C API of Arb.
+  ///
+  ///     arbxx::Arf x;
+  ///     arf_set_ui(x, 1);
+  ///     x
+  ///     // -> 1
+  ///
   inline operator ::arf_t&() { return t; }
 
-  /// Return a reference to the underlying [arf_t]() element for direct
-  /// manipulation with C API of Arb.
+  /// Return a reference to the underlying [::arf_t]() element for direct
+  /// interaction with the C API of Arb.
+  ///
+  ///     arbxx::Arf x{1};
+  ///     arf_get_d(x.arf_t(), ARF_RND_NEAR)
+  ///     // -> 1
+  ///
   inline const ::arf_t& arf_t() const { return *this; }
 
+  /// Implicitly cast this element to the underlying [::arf_t() for direct
+  /// interaction with the C API of Arb.
+  ///
+  ///     arbxx::Arf x{1};
+  ///     arf_get_d(x, ARF_RND_NEAR)
+  ///     // -> 1
+  ///
   inline operator const ::arf_t&() const { return t; }
 
  private:
-  // The underlying arf_t; use arf_t() to get a reference to it.
-  // TODO: Mention implicit cast.
+  /// The underlying [::arf_t](); use [arf_t()]() to get a reference to it.
   ::arf_t t;
 };
 

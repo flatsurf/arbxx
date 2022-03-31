@@ -31,9 +31,6 @@
 #include "rand_generator.hpp"
 #include "arf_generator.hpp"
 
-using boost::lexical_cast;
-using std::string;
-
 namespace arbxx::test {
 
 TEST_CASE("Arf", "[arf]") {
@@ -240,9 +237,9 @@ TEST_CASE("Arf", "[arf]") {
   }
 
   SECTION("Printing") {
-    REQUIRE(lexical_cast<string>(Arf()) == "0");
-    REQUIRE(lexical_cast<string>(Arf(1337)) == "1337");
-    REQUIRE(lexical_cast<string>(Arf(13.37)) == "13.37=7526640877242941p-49");
+    REQUIRE(boost::lexical_cast<std::string>(Arf()) == "0");
+    REQUIRE(boost::lexical_cast<std::string>(Arf(1337)) == "1337");
+    REQUIRE(boost::lexical_cast<std::string>(Arf(13.37)) == "13.37=7526640877242941p-49");
   }
 
   SECTION("Floor & Ceil") {

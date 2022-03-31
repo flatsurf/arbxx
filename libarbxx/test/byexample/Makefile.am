@@ -1,10 +1,10 @@
 TESTS =                                                 \
+	$(abs_srcdir)/../../arbxx/arb.hpp                     \
 	$(abs_srcdir)/../../arbxx/arf.hpp                     \
 	$(abs_srcdir)/../../arbxx/precision.hpp               \
 	$(abs_srcdir)/../../arbxx/rounding.hpp
 
 # TODO
-# $(abs_srcdir)/../../arbxx/arb.hpp                     \
 # $(abs_srcdir)/../../arbxx/cereal.hpp                  \
 # $(abs_srcdir)/../../arbxx/cppyy.hpp                   \
 # $(abs_srcdir)/../../arbxx/forward.hpp

@@ -22,6 +22,7 @@
 #include "../arbxx/precision.hpp"
 
 #include <arb.h>
+#include <arf.h>
 #include <flint/fmpz.h>
 
 #include <algorithm>
@@ -75,8 +76,6 @@ Arb::Arb(const std::pair<Arf, Arf>& bounds, const mp_limb_signed_t precision) : 
 Arb::Arb(const Arf& midpoint) : Arb() {
   arb_set_arf(arb_t(), midpoint.arf_t());
 }
-
-Arb::Arb(const mpq_class& rat) : Arb(rat, ARB_PRECISION_FAST) {}
 
 Arb::Arb(const mpq_class& rat, const mp_limb_signed_t precision) : Arb() {
   fmpq_t x;
@@ -342,18 +341,38 @@ std::optional<bool> operator>(const mpz_class& lhs, const Arb& rhs) { return Arb
 std::optional<bool> operator<=(const mpz_class& lhs, const Arb& rhs) { return Arb(lhs) <= rhs; }
 std::optional<bool> operator>=(const mpz_class& lhs, const Arb& rhs) { return Arb(lhs) >= rhs; }
 
-std::optional<bool> operator==(const Arb& lhs, const mpq_class& rhs) { return lhs == Arb(rhs); }
-std::optional<bool> operator!=(const Arb& lhs, const mpq_class& rhs) { return lhs != Arb(rhs); }
-std::optional<bool> operator<(const Arb& lhs, const mpq_class& rhs) { return lhs < Arb(rhs); }
-std::optional<bool> operator>(const Arb& lhs, const mpq_class& rhs) { return lhs > Arb(rhs); }
-std::optional<bool> operator<=(const Arb& lhs, const mpq_class& rhs) { return lhs <= Arb(rhs); }
-std::optional<bool> operator>=(const Arb& lhs, const mpq_class& rhs) { return lhs >= Arb(rhs); }
-std::optional<bool> operator==(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) == rhs; }
-std::optional<bool> operator!=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) != rhs; }
-std::optional<bool> operator<(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) < rhs; }
-std::optional<bool> operator>(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) > rhs; }
-std::optional<bool> operator<=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) <= rhs; }
-std::optional<bool> operator>=(const mpq_class& lhs, const Arb& rhs) { return Arb(lhs) >= rhs; }
+std::optional<bool> operator==(const Arb& lhs, const mpq_class& rhs) { 
+  return lhs * rhs.get_den() == rhs.get_num();
+}
+std::optional<bool> operator!=(const Arb& lhs, const mpq_class& rhs) {
+  return lhs * rhs.get_den() == rhs.get_num();
+}
+std::optional<bool> operator<(const Arb& lhs, const mpq_class& rhs) {
+  if (rhs < 0)
+    return -lhs > -rhs;
+  return lhs * rhs.get_den() < rhs.get_num();
+}
+std::optional<bool> operator>(const Arb& lhs, const mpq_class& rhs) {
+  if (rhs < 0)
+    return -lhs < -rhs;
+  return lhs * rhs.get_den() > rhs.get_num();
+}
+std::optional<bool> operator<=(const Arb& lhs, const mpq_class& rhs) {
+  if (rhs < 0)
+    return -lhs >= -rhs;
+  return lhs * rhs.get_den() <= rhs.get_num();
+}
+std::optional<bool> operator>=(const Arb& lhs, const mpq_class& rhs) {
+  if (rhs < 0)
+    return -lhs <= -rhs;
+  return lhs * rhs.get_den() >= rhs.get_num();
+}
+std::optional<bool> operator==(const mpq_class& lhs, const Arb& rhs) { return rhs == lhs; }
+std::optional<bool> operator!=(const mpq_class& lhs, const Arb& rhs) { return rhs != lhs; }
+std::optional<bool> operator<(const mpq_class& lhs, const Arb& rhs) { return rhs > lhs; }
+std::optional<bool> operator>(const mpq_class& lhs, const Arb& rhs) { return rhs < lhs; }
+std::optional<bool> operator<=(const mpq_class& lhs, const Arb& rhs) { return rhs >= lhs; }
+std::optional<bool> operator>=(const mpq_class& lhs, const Arb& rhs) { return rhs <= lhs; }
 
 Arb& operator+=(Arb& lhs, const Arb& rhs) {
   arb_add(lhs, lhs, rhs, Precision::current());
@@ -373,6 +392,71 @@ Arb& operator*=(Arb& lhs, const Arb& rhs) {
 Arb& operator/=(Arb& lhs, const Arb& rhs) {
   arb_div(lhs, lhs, rhs, Precision::current());
   return lhs;
+}
+
+Arb& operator+=(Arb& lhs, const Arf& rhs) {
+  arb_add_arf(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
+
+Arb& operator-=(Arb& lhs, const Arf& rhs) {
+  arb_sub_arf(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, const Arf& rhs) {
+  arb_mul_arf(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
+
+Arb& operator/=(Arb& lhs, const Arf& rhs) {
+  arb_div_arf(lhs, lhs, rhs, Precision::current());
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, short rhs) {
+  arb_mul_si(lhs, lhs, rhs, ARF_PREC_EXACT);
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, unsigned short rhs) {
+  arb_mul_ui(lhs, lhs, rhs, ARF_PREC_EXACT);
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, int rhs) {
+  arb_mul_si(lhs, lhs, rhs, ARF_PREC_EXACT);
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, unsigned int rhs) {
+  arb_mul_ui(lhs, lhs, rhs, ARF_PREC_EXACT);
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, long rhs) {
+  arb_mul_si(lhs, lhs, rhs, ARF_PREC_EXACT);
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, unsigned long rhs) {
+  arb_mul_ui(lhs, lhs, rhs, ARF_PREC_EXACT);
+  return lhs;
+}
+
+Arb& operator*=(Arb& lhs, long long rhs) {
+  Precision prec{ARF_PREC_EXACT};
+  return lhs *= Arf(rhs);
+}
+
+Arb& operator*=(Arb& lhs, unsigned long long rhs) {
+  Precision prec{ARF_PREC_EXACT};
+  return lhs *= Arf(rhs);
+}
+
+Arb& operator*=(Arb& lhs, const mpz_class& rhs) {
+  Precision prec{ARF_PREC_EXACT};
+  return lhs *= Arf(rhs);
 }
 
 Arb& Arb::operator=(const Arb& rhs) noexcept {

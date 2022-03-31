@@ -34,51 +34,50 @@
 
 namespace arbxx {
 
-// After some discussion with the Arb author, it seems that 64 and 128 are good
-// default precisions for which Arb should be particularly fast. We use this
-// only when we need some random precision to at which to start an algorithm.
-// For callers of the library, this should not have any effect other than
-// changing the performance of certain calls slightly.
-inline constexpr const prec ARB_PRECISION_FAST = 64;
-
-/// TODO
 /// A wrapper for [::arb_t]() elements, i.e., floating point numbers surrounded
-/// by a real ball of imprecision, so we get C++ style memory management. We
-/// use some Yap magic to get nice operators (which is tricky otherwise because
-/// we cannot pass the additional prec and rnd parameters to operators in C++.)
-///
-/// If you don't like that magic and only want memory management, just create
-/// element and then use Arb functions directly:
-///
+/// by a real ball of imprecision, providing C++ style memory management.
+/// 
 ///     #include <arbxx/arb.hpp>
 ///     arbxx::Arb x, y;
 ///
-///     arb_add(x.arb_t(), x.arb_t(), y.arb_t(), 64);
+/// Instances of this class can be used as arguments in the C API of Arb.
 ///
-/// Using yap this can be rewritten as any of the following:
+///     arb_add(x, x, y, 64);
 ///
-///     #include <arbxx/yap/arb.hpp>
+/// Some parts of the C API that naturally translate to class members, have
+/// been implemented, see below. However, arithmetic operators are not readily
+/// available.
 ///
-///     arbxx::Arb x, y;
+///     x * y
+///     // -> No precision has been specified in this scope.
 ///
-///     x += y(64);
-///     x = (x + y)(64);
+/// They only become available once a precision has been fixed.
 ///
-/// Note that the latter might use an additional temporary Arb. See the
-/// yap/arb.hpp header for more details.
+///     #include <arbxx/precision.hpp>
 ///
-/// Note that methods here are usually named as their counterparts in arb.h with
-/// the leading arb_ removed.
+///     arbxx::Precision prec{64};
 ///
-/// Note that many methods provided by arb's C API are not yet provided by this
-/// C++ wrapper. If something is missing for you, please let us know on our
-/// [GitHub issues page](https://github.com/flatsurf/arbxx/issues).
-class LIBARBXX_API Arb : boost::arithmetic<Arb> {
+///     x * y
+///     // -> 0
+///
+/// Note that these operators are less efficient than calling the corresponding
+/// C function from Arb directly. (See comments below.)
+class LIBARBXX_API Arb : boost::arithmetic<Arb>,
+                         boost::arithmetic<Arb, Arf>,
+                         boost::multipliable<Arb, short>,
+                         boost::multipliable<Arb, unsigned short>,
+                         boost::multipliable<Arb, int>,
+                         boost::multipliable<Arb, unsigned int>,
+                         boost::multipliable<Arb, long>,
+                         boost::multipliable<Arb, unsigned long>,
+                         boost::multipliable<Arb, long long>,
+                         boost::multipliable<Arb, unsigned long long>,
+                         boost::multipliable<Arb, mpz_class> {
  public:
   /// Create an exact zero element.
   ///
   ///     arbxx::Arb x;
-  ///     std::cout << x;
+  ///     x
   ///     // -> 0
   ///
   Arb() noexcept;
@@ -108,20 +107,6 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb> {
   ///     // -> 1337.00
   ///
   explicit Arb(const mpz_class&);
-
-  /// Create an element containing this rational.
-  /// Typically, the result won't be exact, in particular not if the rational
-  /// cannot be represented exactly in base 2.
-  ///
-  ///     arbxx::Arb x{mpq_class{1, 2}};
-  ///     std::cout << x;
-  ///     // -> 0.500000
-  ///
-  ///     arbxx::Arb y{mpq_class{1, 3}};
-  ///     std::cout << std::setprecision(32) << y;
-  ///     // -> [0.33333333333333333331526329712524 +/- 2.72e-20]
-  ///
-  explicit Arb(const mpq_class&);
 
   /// Create an element containing this rational using [arb_set_fmpq](), i.e.,
   /// by performing the division of numerator and denominator with precision
@@ -242,7 +227,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb> {
   /// Note that this is different from the semantic in Arb where false is
   /// returned in both of the latter cases.
   ///
-  ///     arbxx::Arb x{mpq_class{1, 3}};
+  ///     arbxx::Arb x{mpq_class{1, 3}, 64};
   ///     (x < 1).has_value()
   ///     // -> true
   ///
@@ -395,6 +380,23 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb> {
   LIBARBXX_API friend Arb& operator*=(Arb&, const Arb&);
   LIBARBXX_API friend Arb& operator/=(Arb&, const Arb&);
 
+  /// TODO
+  LIBARBXX_API friend Arb& operator+=(Arb&, const Arf&);
+  LIBARBXX_API friend Arb& operator-=(Arb&, const Arf&);
+  LIBARBXX_API friend Arb& operator*=(Arb&, const Arf&);
+  LIBARBXX_API friend Arb& operator/=(Arb&, const Arf&);
+
+  /// TODO
+  LIBARBXX_API friend Arb& operator*=(Arb&, short);
+  LIBARBXX_API friend Arb& operator*=(Arb&, unsigned short);
+  LIBARBXX_API friend Arb& operator*=(Arb&, int);
+  LIBARBXX_API friend Arb& operator*=(Arb&, unsigned int);
+  LIBARBXX_API friend Arb& operator*=(Arb&, long);
+  LIBARBXX_API friend Arb& operator*=(Arb&, unsigned long);
+  LIBARBXX_API friend Arb& operator*=(Arb&, long long);
+  LIBARBXX_API friend Arb& operator*=(Arb&, unsigned long long);
+  LIBARBXX_API friend Arb& operator*=(Arb&, const mpz_class&);
+
   /// Return whether this Arb element exactly represents a floating point
   /// number, i.e., whether its radius is zero, see [arb_is_exact]().
   ///
@@ -402,7 +404,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb> {
   ///     x.is_exact()
   ///     // -> true
   ///
-  ///     arbxx::Arb y{mpq_class{1, 3}};
+  ///     arbxx::Arb y{mpq_class{1, 3}, 64};
   ///     y.is_exact()
   ///     // -> false
   ///
@@ -425,7 +427,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb> {
   /// Return the lower and the upper bound of this ball.
   /// See [arb_get_interval_arf]().
   ///
-  ///     arbxx::Arb x{mpq_class{1, 3}};
+  ///     arbxx::Arb x{mpq_class{1, 3}, 64};
   ///     auto bounds = static_cast<std::pair<arbxx::Arf, arbxx::Arf>>(x);
   ///     std::cout << bounds.first << ", " << bounds.second;
   ///     // -> 0.333333=1537228672809129301p-62, 0.333333=3074457345618258603p-63
@@ -435,7 +437,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb> {
   /// Return the midpoint of this ball rounded to the closest double.
   /// Note that ties are rounded to even.
   ///
-  ///     arbxx::Arb x{mpq_class{1, 3}};
+  ///     arbxx::Arb x{mpq_class{1, 3}, 64};
   ///     static_cast<double>(x)
   ///     // -> 0.333333
   ///
@@ -445,7 +447,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb> {
   ///
   ///     #include <arbxx/arf.hpp>
   ///
-  ///     arbxx::Arb x{mpq_class{1, 3}};
+  ///     arbxx::Arb x{mpq_class{1, 3}, 64};
   ///     std::cout << static_cast<arbxx::Arf>(x);
   ///     // -> 0.333333=6148914691236517205p-64
   ///
