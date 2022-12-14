@@ -33,8 +33,7 @@
 
 namespace arbxx::test {
 
-// TODO: Split for better parallelization.
-TEST_CASE("Arf", "[arf]") {
+TEST_CASE("Arf Constructors", "[arf][Arf]") {
   flint_rand_t& state = GENERATE(rands());
 
   SECTION("Constructors") {
@@ -148,99 +147,101 @@ TEST_CASE("Arf", "[arf]") {
     REQUIRE(static_cast<double>(Arf(-1./.0)) == -1./.0);
     REQUIRE(isnan(static_cast<double>(Arf(.0/.0))));
   }
+}
 
-  SECTION("Relational Operators") {
-    Arf x(-1), y(1);
+TEST_CASE("Relational Operators", "[arf][operator<][operator>][operator==][operator!=][operator<=][operator>=]") {
+  Arf x(-1), y(1);
 
-    REQUIRE(x < y);
-    REQUIRE(y > x);
-    REQUIRE(x <= y);
-    REQUIRE(y >= x);
-    REQUIRE(x == x);
-    REQUIRE(x != y);
-    REQUIRE(!(y < x));
-    REQUIRE(!(x > y));
-    REQUIRE(!(y <= x));
-    REQUIRE(!(x >= y));
-    REQUIRE(!(x == y));
-    REQUIRE(!(x != x));
-  }
+  REQUIRE(x < y);
+  REQUIRE(y > x);
+  REQUIRE(x <= y);
+  REQUIRE(y >= x);
+  REQUIRE(x == x);
+  REQUIRE(x != y);
+  REQUIRE(!(y < x));
+  REQUIRE(!(x > y));
+  REQUIRE(!(y <= x));
+  REQUIRE(!(x >= y));
+  REQUIRE(!(x == y));
+  REQUIRE(!(x != x));
+}
 
-  SECTION("Binary Operators") {
-    auto& a = GENERATE_REF(take(64, arfs(state)));
-    auto& b = GENERATE_REF(take(64, arfs(state)));
+TEST_CASE("Binary Operators", "[arf][operator+][operator-][operator*][operator/]") {
+  flint_rand_t& state = GENERATE(rands());
 
-    CAPTURE(a, b);
+  auto& a = GENERATE_REF(take(64, arfs(state)));
+  auto& b = GENERATE_REF(take(64, arfs(state)));
 
-    Rounding rounding{ARF_RND_NEAR};
-    Precision precision{64};
+  CAPTURE(a, b);
 
-    SECTION("operator+") {
-      if (!arf_is_nan(a)) {
-        REQUIRE(a + Arf(0) == a);
-        REQUIRE(Arf(0) + a == a);
-        if (arf_is_inf(a)) {
-          REQUIRE(arf_is_nan(a + (-a)));
+  Rounding rounding{ARF_RND_NEAR};
+  Precision precision{64};
+
+  SECTION("operator+") {
+    if (!arf_is_nan(a)) {
+      REQUIRE(a + Arf(0) == a);
+      REQUIRE(Arf(0) + a == a);
+      if (arf_is_inf(a)) {
+        REQUIRE(arf_is_nan(a + (-a)));
+      } else {
+        REQUIRE(a + (-a) == 0);
+      }
+      if (!arf_is_nan(b)) {
+        if (arf_is_inf(a) && a == -b) {
+          REQUIRE(arf_is_nan(a + b));
         } else {
-          REQUIRE(a + (-a) == 0);
+          REQUIRE(a + b == b + a);
         }
-        if (!arf_is_nan(b)) {
-          if (arf_is_inf(a) && a == -b) {
-            REQUIRE(arf_is_nan(a + b));
-          } else {
-            REQUIRE(a + b == b + a);
-          }
-        }
-      }
-    }
-
-    SECTION("operator-") {
-      if (!arf_is_nan(a)) {
-        if (!arf_is_nan(b)) {
-          REQUIRE(a - b == -(b - a));
-        }
-
-        if (!arf_is_inf(a)) {
-          REQUIRE(a - a == 0);
-        }
-      }
-    }
-
-    SECTION("operator*") {
-      if (!arf_is_nan(a)) {
-        if (!arf_is_inf(a)) {
-          REQUIRE(a * Arf(0) == 0);
-          REQUIRE(Arf(0) * a == 0);
-        }
-
-        REQUIRE(a * Arf(1) == a);
-        REQUIRE(Arf(1) * a == a);
-
-        if (!arf_is_nan(b)) {
-          REQUIRE(a * b == b * a);
-        }
-      }
-    }
-
-    SECTION("operator/") {
-      if (!arf_is_nan(a)) {
-        REQUIRE(a / Arf{1} == a);
       }
     }
   }
 
-  SECTION("Printing") {
-    REQUIRE(boost::lexical_cast<std::string>(Arf()) == "0");
-    REQUIRE(boost::lexical_cast<std::string>(Arf(1337)) == "1337");
-    REQUIRE(boost::lexical_cast<std::string>(Arf(13.37)) == "13.37=7526640877242941p-49");
+  SECTION("operator-") {
+    if (!arf_is_nan(a)) {
+      if (!arf_is_nan(b)) {
+        REQUIRE(a - b == -(b - a));
+      }
+
+      if (!arf_is_inf(a)) {
+        REQUIRE(a - a == 0);
+      }
+    }
   }
 
-  SECTION("Floor & Ceil") {
-    REQUIRE(Arf(.4).floor() == 0);
-    REQUIRE(Arf(.4).ceil() == 1);
-    REQUIRE(Arf(.6).floor() == 0);
-    REQUIRE(Arf(.6).ceil() == 1);
+  SECTION("operator*") {
+    if (!arf_is_nan(a)) {
+      if (!arf_is_inf(a)) {
+        REQUIRE(a * Arf(0) == 0);
+        REQUIRE(Arf(0) * a == 0);
+      }
+
+      REQUIRE(a * Arf(1) == a);
+      REQUIRE(Arf(1) * a == a);
+
+      if (!arf_is_nan(b)) {
+        REQUIRE(a * b == b * a);
+      }
+    }
   }
+
+  SECTION("operator/") {
+    if (!arf_is_nan(a)) {
+      REQUIRE(a / Arf{1} == a);
+    }
+  }
+}
+
+TEST_CASE("Arf Printing", "[arf][operator<<]") {
+  REQUIRE(boost::lexical_cast<std::string>(Arf()) == "0");
+  REQUIRE(boost::lexical_cast<std::string>(Arf(1337)) == "1337");
+  REQUIRE(boost::lexical_cast<std::string>(Arf(13.37)) == "13.37=7526640877242941p-49");
+}
+
+TEST_CASE("Arf Floor & Ceil", "[arf][floor][ceil]") {
+  REQUIRE(Arf(.4).floor() == 0);
+  REQUIRE(Arf(.4).ceil() == 1);
+  REQUIRE(Arf(.6).floor() == 0);
+  REQUIRE(Arf(.6).ceil() == 1);
 }
 
 }  // namespace arbxx::test
