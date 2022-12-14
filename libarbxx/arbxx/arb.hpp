@@ -428,7 +428,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   ///
   bool is_finite() const;
 
-  /// Return the lower and the upper bound of this ball.
+  /// Return an lower and the upper bound of this ball.
   /// See [arb_get_interval_arf]().
   ///
   ///     arbxx::Arb x{mpq_class{1, 3}, 64};
@@ -466,6 +466,8 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   ///     // -> 0.333333=6148914691236517205p-64
   ///
   explicit operator Arf() const;
+
+  // TODO: Expose this operator also as midpoint().
 
   /// Write this element to the output stream, see [arb_get_str]().
   LIBARBXX_API friend std::ostream& operator<<(std::ostream&, const Arb&);
@@ -590,6 +592,10 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   ///     // -> true
   ///
   bool equal(const Arb&) const;
+
+  /// Return whether this element contains the entire other ball, see
+  /// [arb_contains]().
+  bool contains(const Arb&) const;
 
   /// Swap two elements efficiently, see [arb_swap]().
   /// Used by some STL containers.

@@ -70,6 +70,9 @@ Arb::Arb(Arb&& arb) noexcept {
 }
 
 Arb::Arb(const std::pair<Arf, Arf>& bounds, const mp_limb_signed_t precision) : Arb() {
+  if (precision <= 0)
+    throw std::invalid_argument("precision must be positive");
+
   arb_set_interval_arf(arb_t(), bounds.first.arf_t(), bounds.second.arf_t(), precision);
 }
 
@@ -78,6 +81,9 @@ Arb::Arb(const Arf& midpoint) : Arb() {
 }
 
 Arb::Arb(const mpq_class& rat, const mp_limb_signed_t precision) : Arb() {
+  if (precision <= 0)
+    throw std::invalid_argument("precision must be positive");
+
   fmpq_t x;
   fmpq_init_set_readonly(x, rat.get_mpq_t());
   arb_set_fmpq(arb_t(), x, precision);
@@ -92,7 +98,10 @@ Arb::Arb(const mpz_class& value) : Arb() {
 }
 
 Arb::Arb(const std::string& value, const prec precision) : Arb() {
-  if(arb_set_str(arb_t(), value.c_str(), precision))
+  if (precision <= 0)
+    throw std::invalid_argument("precision must be positive");
+
+  if (arb_set_str(arb_t(), value.c_str(), precision))
     throw std::invalid_argument("cannot parse value into an Arb");
 }
 
@@ -534,6 +543,10 @@ Arb::operator Arf() const {
   Arf midpoint;
   arf_set(midpoint.arf_t(), arb_midref(arb_t()));
   return midpoint;
+}
+
+bool Arb::contains(const Arb& other) const {
+  return arb_contains(*this, other);
 }
 
 void swap(Arb& a, Arb& b) {
