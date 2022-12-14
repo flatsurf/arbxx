@@ -91,7 +91,10 @@ Arb::Arb(const mpz_class& value) : Arb() {
   fmpz_clear_readonly(x);
 }
 
-Arb::Arb(const std::string& value, const prec precision) : Arb() { arb_set_str(arb_t(), value.c_str(), precision); }
+Arb::Arb(const std::string& value, const prec precision) : Arb() {
+  if(arb_set_str(arb_t(), value.c_str(), precision))
+    throw std::invalid_argument("cannot parse value into an Arb");
+}
 
 Arb::~Arb() noexcept { arb_clear(arb_t()); }
 
@@ -518,6 +521,14 @@ Arb::operator std::pair<Arf, Arf>() const {
 }
 
 Arb::operator double() const { return arf_get_d(arb_midref(arb_t()), ARF_RND_NEAR); }
+
+Arb::operator std::string() const {
+  std::string str;
+  char* s = arb_get_str(arb_t(), arb_bits(arb_t()), ARB_STR_MORE);
+  str = s;
+  flint_free(s);
+  return str;
+}
 
 Arb::operator Arf() const {
   Arf midpoint;

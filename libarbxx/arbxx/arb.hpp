@@ -172,8 +172,12 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   ///     std::cout << x;
   ///     // -> [3.25000 +/- 1.01e-4]
   ///
+  /// Note that, as in the above example, the radius is not guaranteed to be
+  /// preserved when going from an element to its string representation and
+  /// back. See https://github.com/fredrik-johansson/arb/issues/412.
   Arb(const std::string&, const prec);
 
+  /// TODO
   ~Arb() noexcept;
 
   /// ==* `operator=(Arb)` *==
@@ -434,6 +438,16 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   ///
   explicit operator std::pair<Arf, Arf>() const;
 
+  /// Return a printable representation of this element.
+  /// Note that parsing the string might not produce the same element, see
+  /// https://github.com/fredrik-johansson/arb/issues/412.
+  ///
+  ///     arbxx::Arb x{mpq_class{1, 3}, 64};
+  ///     static_cast<std::string>(x)
+  ///     // -> [0.333333333333333333315263297125241592766542453318834304809570313 +/- 2.72e-20]
+  ///
+  explicit operator std::string() const;
+
   /// Return the midpoint of this ball rounded to the closest double.
   /// Note that ties are rounded to even.
   ///
@@ -460,6 +474,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   /// manipulation with the C API of Arb.
   ::arb_t& arb_t();
 
+  /// TODO
   inline operator ::arb_t&() {
     return t;
   }
@@ -468,6 +483,7 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   /// manipulation with the C API of Arb.
   const ::arb_t& arb_t() const;
 
+  // TODO
   inline operator const ::arb_t&() const {
     return t;
   }
@@ -587,10 +603,6 @@ class LIBARBXX_API Arb : boost::arithmetic<Arb>,
   ///     // -> a = 0, b = 1.00000
   ///
   LIBARBXX_API friend void swap(Arb&, Arb&);
-
-  // Syntactic sugar for Yap, so that expresions such as x += y(64, Arf::Rount::NEAR) work.
-  template <typename... Args>
-  LIBARBXX_LOCAL decltype(auto) operator()(Args&&...) const;
 
  private:
   /// TODO

@@ -25,9 +25,11 @@
 
 #include "rand_generator.hpp"
 #include "arb_generator.hpp"
+#include "arf_generator.hpp"
 
 namespace arbxx::test {
 
+// TODO: Split for better parallelization
 TEST_CASE("Arb", "[arb]") {
   flint_rand_t& state = GENERATE(rands());
 
@@ -59,73 +61,99 @@ TEST_CASE("Arb", "[arb]") {
       REQUIRE(c.equal(a));
     }
 
+    const auto equal_point = [](const Arb& lhs, const auto& rhs) -> bool {
+      auto interval = static_cast<std::pair<Arf, Arf>>(lhs);
+      return interval.first == interval.second && interval.first == rhs;
+    };
+
     SECTION("Constructor from Integer") {
-      const auto equal = [](const Arb& lhs, const auto& rhs) -> bool {
-        auto interval = static_cast<std::pair<Arf, Arf>>(lhs);
-        return interval.first == interval.second && interval.first == rhs;
-      };
-
       SECTION("short") {
-        REQUIRE(equal(Arb{static_cast<short>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<short>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<short>::min()}, std::numeric_limits<short>::min()));
-        REQUIRE(equal(Arb{std::numeric_limits<short>::max()}, std::numeric_limits<short>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<short>::min()}, std::numeric_limits<short>::min()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<short>::max()}, std::numeric_limits<short>::max()));
       }
 
       SECTION("unsigned short") {
-        REQUIRE(equal(Arb{static_cast<unsigned short>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<unsigned short>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<unsigned short>::max()}, std::numeric_limits<unsigned short>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<unsigned short>::max()}, std::numeric_limits<unsigned short>::max()));
       }
 
       SECTION("int") {
-        REQUIRE(equal(Arb{static_cast<int>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<int>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<int>::min()}, std::numeric_limits<int>::min()));
-        REQUIRE(equal(Arb{std::numeric_limits<int>::max()}, std::numeric_limits<int>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<int>::min()}, std::numeric_limits<int>::min()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<int>::max()}, std::numeric_limits<int>::max()));
       }
 
       SECTION("unsigned int") {
-        REQUIRE(equal(Arb{static_cast<unsigned int>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<unsigned int>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<unsigned int>::max()}, std::numeric_limits<unsigned int>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<unsigned int>::max()}, std::numeric_limits<unsigned int>::max()));
       }
 
       SECTION("long") {
-        REQUIRE(equal(Arb{static_cast<long>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<long>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<long>::min()}, std::numeric_limits<long>::min()));
-        REQUIRE(equal(Arb{std::numeric_limits<long>::max()}, std::numeric_limits<long>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<long>::min()}, std::numeric_limits<long>::min()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<long>::max()}, std::numeric_limits<long>::max()));
       }
 
       SECTION("unsigned long") {
-        REQUIRE(equal(Arb{static_cast<unsigned long>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<unsigned long>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<unsigned long>::max()}, std::numeric_limits<unsigned long>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<unsigned long>::max()}, std::numeric_limits<unsigned long>::max()));
       }
 
       SECTION("long long") {
-        REQUIRE(equal(Arb{static_cast<long long>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<long long>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<long long>::min()}, std::numeric_limits<long long>::min()));
-        REQUIRE(equal(Arb{std::numeric_limits<long long>::max()}, std::numeric_limits<long long>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<long long>::min()}, std::numeric_limits<long long>::min()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<long long>::max()}, std::numeric_limits<long long>::max()));
       }
 
       SECTION("unsigned long long") {
-        REQUIRE(equal(Arb{static_cast<unsigned long long>(0)}, 0));
+        REQUIRE(equal_point(Arb{static_cast<unsigned long long>(0)}, 0));
 
-        REQUIRE(equal(Arb{std::numeric_limits<unsigned long long>::max()}, std::numeric_limits<unsigned long long>::max()));
+        REQUIRE(equal_point(Arb{std::numeric_limits<unsigned long long>::max()}, std::numeric_limits<unsigned long long>::max()));
       }
 
-      // TODO (mpz & builtin types)
+      SECTION("mpz_class") {
+        REQUIRE(equal_point(Arb{mpz_class{}}, 0));
+      }
     }
 
     SECTION("Constructor from Rational") {
-      // TODO
+      REQUIRE(equal_point(Arb{mpq_class{1, 2}, 2} * 2, 1));
+      REQUIRE(!equal_point(Arb{mpq_class{1, 3}, 2} * 3, 1));
     }
 
     SECTION("Constructor from Arf") {
-      // TODO (2)
+      auto& a = GENERATE_REF(take(128, arfs(state)));
+
+      REQUIRE(equal_point(Arb{a}, a));
+    }
+
+    SECTION("Constructor from String") {
+      SECTION("Parse Errors are Reported as Exceptions") {
+        REQUIRE_THROWS(Arb("error", 64));
+      }
+
+      SECTION("Values Roundtrip") {
+        auto& a = GENERATE_REF(take(1024, arbs(state)));
+
+        const std::string s = static_cast<std::string>(a);
+
+        Arb b{s, arb_bits(a) + 1024};
+
+        CAPTURE(a, s, b, arb_dump_str(a));
+
+        // This does not hold in general, see https://github.com/fredrik-johansson/arb/issues/412.
+        // REQUIRE(a.equal(b));
+
+        // TODO: Check for containment instead.
+      }
     }
   }
 }
