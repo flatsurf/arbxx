@@ -4,16 +4,15 @@ endif
 
 SUBDIRS = $(MAYBE_BYEXAMPLE)
 
-check_PROGRAMS = arb arf cereal cppyy precision rounding
+check_PROGRAMS = main
 
-TESTS = $(check_PROGRAMS)
+TESTS = libarbxx.test.sh
 
-arb_SOURCES = arb.test.cc arb.hpp main.cc
-arf_SOURCES = arf.test.cc arf.hpp main.cc
-cereal_SOURCES = cereal.test.cc arb.hpp arf.hpp main.cc
-cppyy_SOURCES = cppyy.test.cc main.cc
-precision_SOURCES = precision.test.cc main.cc
-rounding_SOURCES = rounding.test.cc main.cc
+main_SOURCES = arb.test.cc arf.test.cc cereal.test.cc cppyy.test.cc precision.test.cc rounding.test.cc main.cc
+
+noinst_HEADERS =                                    \
+  arf.hpp                                           \
+	arb.hpp
 
 # We vendor the header-only library Cereal (serialization with C++ to be able
 # to run the tests even when cereal is not installed.
@@ -22,6 +21,8 @@ rounding_SOURCES = rounding.test.cc main.cc
 EXTRA_DIST = external/cereal/include
 # We vendor the header-only test library catch2
 EXTRA_DIST += external/catch2/single_include/catch2/catch.hpp
+
+EXTRA_DIST += libflatsurf.test.sh
 
 @VALGRIND_CHECK_RULES@
 

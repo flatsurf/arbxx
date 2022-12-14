@@ -19,5 +19,6 @@ dependencies:
   - gmp>6,<7
   - libtool
   - make
+  - parallel
   # valgrind is only needed for make check-valgrind
   # - valgrind
