@@ -25,6 +25,7 @@
 #include <arf.h>
 
 #include <ostream>
+#include <stdexcept>
 
 #include "util/integer.ipp"
 
@@ -57,12 +58,17 @@ Arf::Arf(const std::string& mantissa, int base, long exponent) : Arf() {
   fmpz_init(m);
   fmpz_init(e);
 
-  fmpz_set_str(m, mantissa.c_str(), base);
-  fmpz_set_si(e, exponent);
-  arf_set_fmpz_2exp(t, m, e);
+  const bool error = fmpz_set_str(m, mantissa.c_str(), base) == -1;
+  if (!error) {
+    fmpz_set_si(e, exponent);
+    arf_set_fmpz_2exp(t, m, e);
+  }
 
   fmpz_clear(e);
   fmpz_clear(m);
+
+  if (error)
+    throw std::invalid_argument("cannot parse mantissa");
 }
 
 Arf::Arf(const mpz_class& mantissa, long exponent) : Arf() {

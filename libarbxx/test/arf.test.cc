@@ -33,6 +33,7 @@
 
 namespace arbxx::test {
 
+// TODO: Split for better parallelization.
 TEST_CASE("Arf", "[arf]") {
   flint_rand_t& state = GENERATE(rands());
 
@@ -60,25 +61,16 @@ TEST_CASE("Arf", "[arf]") {
 
     SECTION("Constructor from Mantissa & Exponent") {
       SECTION("Base 2") {
-        Arf zero{"", 2, 0};
-        REQUIRE(zero == 0);
-
         Arf a{"101", 2, 1};
         REQUIRE(a == 0b1010);
       }
 
       SECTION("Base 8") {
-        Arf zero{"", 8, 0};
-        REQUIRE(zero == 0);
-
         Arf a{"1337", 8, 3};
         REQUIRE(a == 013370);
       }
 
       SECTION("Base 10") {
-        Arf zero{"", 10, 0};
-        REQUIRE(zero == 0);
-
         Arf a{"0815", 10, 0};
         REQUIRE(a == 815);
 
@@ -86,11 +78,12 @@ TEST_CASE("Arf", "[arf]") {
       }
 
       SECTION("Base 16") {
-        Arf zero{"", 16, 0};
-        REQUIRE(zero == 0);
-
         Arf a{"CAFE", 16, -1};
         REQUIRE(a == 0xCAFE/2);
+      }
+
+      SECTION("Errors are Reported as Exceptions") {
+        REQUIRE_THROWS(Arf("error", 10, 0));
       }
     }
 
