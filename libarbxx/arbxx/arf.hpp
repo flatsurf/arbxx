@@ -35,24 +35,37 @@
 namespace arbxx {
 
 /// A wrapper for [arf_t]() elements, i.e., arbitrary precision floating point
-/// numbers, so we get C++ style memory management.
+/// numbers, providing C++ style memory management.
 ///
 ///     #include <arbxx/arf.hpp>
 ///     arbxx::Arf x, y;
 ///
+/// Instances of this class can be used as arguments in the C API of Arb.
+///
 ///     arf_add(x, x, y, 64, ARF_RND_NEAR);
 ///
-/// TODO: Explain more magic.
+/// Some parts of the C API that naturally translate to class members, have
+/// been implemented, see belowe. However, arithmetic operators are not readily
+/// available.
 ///
-/// TODO: Are we going to do this?
-/// Note that methods here are usually named as their counterparts in arf.h with
-/// the leading arf_ removed.
+///     x + y
+///     // -> No rounding has been specified in this scope.
 ///
-/// TODO: Do we want to expose?
-/// Note that many methods provided by arb's C API are not yet provided by this
-/// C++ wrapper. If something is missing for you, please let us know on our
-/// [GitHub issues page](https://github.com/flatsurf/arbxx/issues).
-class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
+/// They only become available once a precision and a rounding direction have been fixed.
+///
+///     #include <arbxx/precision.hpp>
+///     #include <arbxx/rounding.hpp>
+///
+///     arbxx::Precision prec{64};
+///     arbxx::Rounding round{ARF_RND_NEAR};
+///
+///     x + y
+///     // -> 0
+///
+/// Note that these operators are less efficient than calling the corresponding
+/// C function from Arb directly. (See comments below.)
+class LIBARBXX_API Arf : boost::arithmetic<Arf>,
+                         boost::totally_ordered<Arf>,
                          boost::totally_ordered<Arf, short>,
                          boost::totally_ordered<Arf, unsigned short>,
                          boost::totally_ordered<Arf, int>,
@@ -64,51 +77,40 @@ class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
                          boost::totally_ordered<Arf, const mpz_class&>,
                          boost::shiftable<Arf, long> {
  public:
-  /// Rounding modes for arithmetic operations.
-  enum class Round {
-    /// See [ARF_RND_NEAR]().
-    NEAR = ARF_RND_NEAR,
-    /// See [ARF_RND_DOWN]().
-    DOWN = ARF_RND_DOWN,
-    /// See [ARF_RND_UP]().
-    UP = ARF_RND_UP,
-    /// See [ARF_RND_FLOOR]().
-    FLOOR = ARF_RND_FLOOR,
-    /// See [ARF_RND_CEIL]().
-    CEIL = ARF_RND_CEIL,
-  };
-
   /// Create a zero element.
   ///
   ///     arbxx::Arf x;
-  ///     std::cout << x;
+  ///     x
   ///     // -> 0
   ///
-  Arf() noexcept;
+  inline Arf() noexcept { arf_init(*this); }
 
   /// Create a copy of an element.
   ///
   ///     arbxx::Arf x{1};
   ///     arbxx::Arf y{x};
-  ///     std::cout << y;
+  ///     y
   ///     // -> 1
   ///
-  Arf(const Arf&) noexcept;
+  inline Arf(const Arf& rhs) noexcept: Arf() { arf_set(*this, rhs); }
 
   /// Create an element from another one.
   ///
   ///     arbxx::Arf x{1};
   ///     arbxx::Arf y{std::move(x)};
-  ///     std::cout << y;
+  ///     y
   ///     // -> 1
   ///
-  Arf(Arf&&) noexcept;
+  /// The original element `x` is moved into the newly created element. The
+  /// original element should not be used anymore after that. (Currently, it's
+  /// just reset to zero but that might change in the future.)
+  Arf(Arf&& rhs) noexcept: Arf() { swap(*this, rhs); }
 
   /// Create the element `mantissa * 2^exponent` where `mantissa` is an integer
   /// written in `base`.
   ///
   ///     arbxx::Arf x{"abc", 16, -8};
-  ///     std::cout << x;
+  ///     x
   ///     // -> 10.7344=687p-6
   ///
   Arf(const std::string& mantissa, int base, long exponent);
@@ -128,12 +130,12 @@ class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
   ///     std::cout << x;
   ///     // -> 2748
   ///
-  explicit Arf(short);
-  explicit Arf(unsigned short);
-  explicit Arf(int);
-  explicit Arf(unsigned int);
-  explicit Arf(long);
-  explicit Arf(unsigned long);
+  explicit Arf(short value) : Arf(static_cast<long>(value)) {}
+  explicit Arf(unsigned short value) : Arf(static_cast<unsigned long>(value)) {}
+  explicit Arf(int value) : Arf(static_cast<long>(value)) {}
+  explicit Arf(unsigned int value) : Arf(static_cast<unsigned long>(value)) {}
+  explicit Arf(long value) { arf_init_set_si(*this, value); }
+  explicit Arf(unsigned long value) { arf_init_set_ui(*this, value) ;}
   explicit Arf(long long);
   explicit Arf(unsigned long long);
 
@@ -145,7 +147,7 @@ class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
   ///
   explicit Arf(double);
 
-  ~Arf() noexcept;
+  inline ~Arf() noexcept { arf_clear(*this); }
 
   /// Make this element an identical copy of the provided one.
   ///
@@ -208,7 +210,13 @@ class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
   ///     std::cout << static_cast<double>(x);
   ///     // -> 0
   ///
-  ///     x = (x * arbxx::Arf{1, 65536})(64, arbxx::Arf::Round::NEAR);
+  ///     #include <arbxx/precision.hpp>
+  ///     #include <arbxx/rounding.hpp>
+  ///
+  ///     arbxx::Precision prec{64};
+  ///     arbxx::Rounding round{ARF_RND_NEAR};
+  ///
+  ///     x *= arbxx::Arf{1, 65536};
   ///     std::cout << static_cast<double>(x);
   ///     // -> 1
   ///
@@ -335,6 +343,46 @@ class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
   LIBARBXX_API friend bool operator>(const Arf&, const mpz_class&);
   LIBARBXX_API friend bool operator==(const Arf&, const mpz_class&);
 
+  /// The binary operators `+`, `-`, `*`, `/` are available.
+  ///
+  ///     #include <arbxx/precision.hpp>
+  ///     #include <arbxx/rounding.hpp>
+  ///
+  ///     arbxx::Precision prec{64};
+  ///     arbxx::Rounding round{ARF_RND_NEAR};
+  ///
+  ///     arbxx::Arf x{1}, y{2};
+  ///
+  ///     x + y
+  ///     // -> 3
+  ///
+  ///     x - y
+  ///     // -> -1
+  ///
+  ///     x * y
+  ///     // -> 2
+  ///
+  ///     x / y
+  ///     // -> 0.5=1p-1
+  ///
+  /// For small operands, these operators can be much slower (factor 2) than
+  /// using the corresponding C API directly, i.e., [arf_add](), [arf_sub](),
+  /// [arf_mul](), [arf_div](). This is essentially due to call overhead and
+  /// also because an additional temporary is needed.
+  ///
+  /// There are also inplace operators that are slightly faster because they do
+  /// not need the temporary, but still the call overhead can be substantial.
+  ///
+  ///     x += y;
+  ///     x -= y;
+  ///     x *= y;
+  ///     x /= y;
+  ///
+  LIBARBXX_API friend Arf& operator+=(Arf&, const Arf&);
+  LIBARBXX_API friend Arf& operator-=(Arf&, const Arf&);
+  LIBARBXX_API friend Arf& operator*=(Arf&, const Arf&);
+  LIBARBXX_API friend Arf& operator/=(Arf&, const Arf&);
+
   /// Return a random element, see [arf_randtest]().
   ///
   ///     #include <flint/flintxx/frandxx.h>
@@ -373,19 +421,50 @@ class LIBARBXX_API Arf : boost::totally_ordered<Arf>,
   ///     std::cout << "x = " << x << ", y = " << y;
   ///     // -> x = 0, y = 1
   ///
-  LIBARBXX_API friend void swap(Arf& lhs, Arf& rhs);
+  LIBARBXX_API friend inline void swap(Arf& lhs, Arf& rhs) {
+    arf_swap(lhs, rhs);
+  }
 
   /// Return a reference to the underlying [arf_t]() element for direct
-  /// manipulation with C API of Arb.
-  ::arf_t& arf_t();
+  /// manipulation with the C API of Arb.
+  ///
+  ///     arbxx::Arf x;
+  ///     arf_set_ui(x.arf_t(), 1);
+  ///     x
+  ///     // -> 1
+  ///
+  inline ::arf_t& arf_t() { return *this; }
 
-  /// Return a reference to the underlying [arf_t]() element for direct
-  /// manipulation with C API of Arb.
-  const ::arf_t& arf_t() const;
+  /// Implicitly cast this element to the underlying [::arf_t]() for direct
+  /// manipulation with the C API of Arb.
+  ///
+  ///     arbxx::Arf x;
+  ///     arf_set_ui(x, 1);
+  ///     x
+  ///     // -> 1
+  ///
+  inline operator ::arf_t&() { return t; }
+
+  /// Return a reference to the underlying [::arf_t]() element for direct
+  /// interaction with the C API of Arb.
+  ///
+  ///     arbxx::Arf x{1};
+  ///     arf_get_d(x.arf_t(), ARF_RND_NEAR)
+  ///     // -> 1
+  ///
+  inline const ::arf_t& arf_t() const { return *this; }
+
+  /// Implicitly cast this element to the underlying [::arf_t() for direct
+  /// interaction with the C API of Arb.
+  ///
+  ///     arbxx::Arf x{1};
+  ///     arf_get_d(x, ARF_RND_NEAR)
+  ///     // -> 1
+  ///
+  inline operator const ::arf_t&() const { return t; }
 
  private:
-  // The underlying arf_t; use arf_t() to get a reference to it.
-  // TODO: Mention implicit cast.
+  /// The underlying [::arf_t](); use [arf_t()]() to get a reference to it.
   ::arf_t t;
 };
 

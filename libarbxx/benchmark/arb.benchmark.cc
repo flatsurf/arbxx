@@ -25,142 +25,72 @@
 
 namespace arbxx::test {
 
-// TODO: Document tests. Add more benchmarks. Add benchmarks for other structures.
+/// Benchmarks using the C++ interface provided by libarbxx.
+struct ArbBenchmark_libarbxx : public benchmark::Fixture {};
 
-struct ArbBenchmark : public benchmark::Fixture {
-  void SetUp(const benchmark::State& state) override { SetUp(const_cast<benchmark::State&>(state)); }
+/// Benchmarks using the original C interface provided by Arb.
+struct ArbBenchmark_libarb : public benchmark::Fixture {};
 
-  void SetUp(benchmark::State&) override { tester.reset(); }
+/* Benchmark the Default Constructor */
+BENCHMARK_DEFINE_F(ArbBenchmark_libarbxx, DefaultConstructor)(benchmark::State& state) {
+  for (auto _ : state)
+    benchmark::DoNotOptimize(Arf{});
+}
+BENCHMARK_REGISTER_F(ArbBenchmark_libarbxx, DefaultConstructor);
 
-  Arb random(benchmark::State& state) { return tester.random(state.range(0), state.range(1)); }
-
-  static void BenchmarkedSizes(benchmark::internal::Benchmark* b) {
-    b->Args({53, 10});
-    b->Args({65536, 1024});
-  }
-
-  ArbTester tester;
-};
-
-BENCHMARK_DEFINE_F(ArbBenchmark, Create)
-(benchmark::State& state) {
+BENCHMARK_DEFINE_F(ArbBenchmark_libarb, DefaultConstructor)(benchmark::State& state) {
   for (auto _ : state) {
-    // interestingly, this is not optimized away by GCC -O3
-    Arb x;
+    arb_t x;
+    arb_init(x);
+    arb_clear(x);
   }
 }
-BENCHMARK_REGISTER_F(ArbBenchmark, Create);
+BENCHMARK_REGISTER_F(ArbBenchmark_libarb, DefaultConstructor);
 
-BENCHMARK_DEFINE_F(ArbBenchmark, CreateMove)
-(benchmark::State& state) {
-  flint::frandxx rand;
-  Arb x = random(state);
-  Arb z = x;
-  bool skip = false;
+/* Benchmark the Copy Constructor */
+BENCHMARK_DEFINE_F(ArbBenchmark_libarbxx, CopyConstructor)(benchmark::State& state) {
+  Arb a;
+
+  for (auto _ : state)
+    benchmark::DoNotOptimize(Arb{a});
+}
+BENCHMARK_REGISTER_F(ArbBenchmark_libarbxx, CopyConstructor);
+
+BENCHMARK_DEFINE_F(ArbBenchmark_libarb, CopyConstructor)(benchmark::State& state) {
+  arb_t x;
+  arb_init(x);
 
   for (auto _ : state) {
-    if (!skip) {
-      Arb y(std::move(x));
-      x = std::move(y);
-    }
-    // only run every other loop, so that CreateMove() (which is two
-    // operations, Arb(&&) then operator=(&&)) can be easily compared in the
-    // output.
-    skip = !skip;
+    arb_t y;
+    arb_init(y);
+    arb_set(y, x);
+    arb_clear(y);
   }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, CreateMove)->Apply(ArbBenchmark::BenchmarkedSizes);
 
-BENCHMARK_DEFINE_F(ArbBenchmark, CreateCopy)
-(benchmark::State& state) {
-  Arb x = random(state);
+  arb_clear(x);
+}
+BENCHMARK_REGISTER_F(ArbBenchmark_libarb, CopyConstructor);
+
+/* Benchmark the Move Constructor */
+BENCHMARK_DEFINE_F(ArbBenchmark_libarbxx, MoveConstructor)(benchmark::State& state) {
   for (auto _ : state) {
-    Arb y(x);
+    Arb a;
+    benchmark::DoNotOptimize(Arb{std::move(a)});
   }
 }
-BENCHMARK_REGISTER_F(ArbBenchmark, CreateCopy)->Apply(ArbBenchmark::BenchmarkedSizes);
+BENCHMARK_REGISTER_F(ArbBenchmark_libarbxx, MoveConstructor);
 
-// For comparison, assignments with the C API
-BENCHMARK_DEFINE_F(ArbBenchmark, Assign_C)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state);
-
-  arb_t x_, y_;
-  arb_init(x_);
-  arb_init(y_);
-  arb_set(y_, y.arb_t());
-
+BENCHMARK_DEFINE_F(ArbBenchmark_libarb, MoveConstructor)(benchmark::State& state) {
   for (auto _ : state) {
-    arb_set(x_, y_);
-  }
+    arb_t x, y;
 
-  arb_clear(y_);
-  arb_clear(x_);
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, Assign_C)->Apply(ArbBenchmark::BenchmarkedSizes);
-
-BENCHMARK_DEFINE_F(ArbBenchmark, Assign)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state);
-
-  for (auto _ : state) {
-    x = y;
+    arb_init(x);
+    arb_init(y);
+    arb_swap(y, x);
+    arb_clear(y);
+    arb_clear(x);
   }
 }
-BENCHMARK_REGISTER_F(ArbBenchmark, Assign)->Apply(ArbBenchmark::BenchmarkedSizes);
-
-BENCHMARK_DEFINE_F(ArbBenchmark, AssignMove)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state);
-
-  Arb z = y;
-
-  for (auto _ : state) {
-    x = std::move(y);
-    y = std::move(x);
-  }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, AssignMove)->Apply(ArbBenchmark::BenchmarkedSizes);
-
-// For comparison, arithmetic with the C API
-BENCHMARK_DEFINE_F(ArbBenchmark, Addition_C)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state);
-
-  for (auto _ : state) {
-    x = y;
-    arb_add(x.arb_t(), x.arb_t(), y.arb_t(), 64);
-  }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, Addition_C)->Apply(ArbBenchmark::BenchmarkedSizes);
-
-// For comparison, the same, naively with the C API
-BENCHMARK_DEFINE_F(ArbBenchmark, Arithmetic_C)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state), z = random(state);
-
-  for (auto _ : state) {
-    x = y;
-    Arb lhs;
-    arb_mul(lhs.arb_t(), y.arb_t(), z.arb_t(), 64);
-    Arb value;
-    arb_add(value.arb_t(), lhs.arb_t(), x.arb_t(), 64);
-    arb_add(x.arb_t(), x.arb_t(), value.arb_t(), 64);
-  }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, Arithmetic_C)->Apply(ArbBenchmark::BenchmarkedSizes);
-
-// For comparison, the same, optimized with the C API
-BENCHMARK_DEFINE_F(ArbBenchmark, Arithmetic_C_optimized)
-(benchmark::State& state) {
-  Arb x = random(state), y = random(state), z = random(state);
-
-  for (auto _ : state) {
-    x = y;
-    arb_add(x.arb_t(), x.arb_t(), x.arb_t(), 64);
-    arb_addmul(x.arb_t(), y.arb_t(), z.arb_t(), 64);
-  }
-}
-BENCHMARK_REGISTER_F(ArbBenchmark, Arithmetic_C_optimized)->Apply(ArbBenchmark::BenchmarkedSizes);
+BENCHMARK_REGISTER_F(ArbBenchmark_libarb, MoveConstructor);
 
 }  // namespace arbxx::test

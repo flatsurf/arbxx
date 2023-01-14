@@ -19,135 +19,156 @@
  *********************************************************************/
 
 #include <boost/lexical_cast.hpp>
+#include <algorithm>
 
 #include "../arbxx/arb.hpp"
 #include "external/catch2/single_include/catch2/catch.hpp"
 
-using boost::lexical_cast;
-using std::string;
+#include "rand_generator.hpp"
+#include "arb_generator.hpp"
+#include "arf_generator.hpp"
 
 namespace arbxx::test {
 
-// TODO: Clean up testing.
+TEST_CASE("Arb Constructors", "[arb][Arb]") {
+  flint_rand_t& state = GENERATE(rands());
 
-TEST_CASE("Create/Destroy Arb", "[arb]") {
-  delete new Arb();
+  SECTION("Default Constructor") {
+    REQUIRE((Arb{} == 0) == true);
+  }
+
+  SECTION("Copy Constructor") {
+    const auto& a = GENERATE_REF(take(128, arbs(state)));
+    CAPTURE(a);
+
+    Arb b{a};
+    CAPTURE(b);
+
+    REQUIRE(a.equal(b));
+  }
+
+  SECTION("Move Constructor") {
+    auto& a = GENERATE_REF(take(128, arbs(state)));
+    CAPTURE(a);
+
+    const Arb b = a;
+    CAPTURE(b);
+
+    Arb c{std::move(a)};
+    CAPTURE(c);
+
+    REQUIRE(c.equal(a));
+  }
+
+  const auto equal_point = [](const Arb& lhs, const auto& rhs) -> bool {
+    auto interval = static_cast<std::pair<Arf, Arf>>(lhs);
+    return interval.first == interval.second && interval.first == rhs;
+  };
+
+  SECTION("Constructor from Integer") {
+    SECTION("short") {
+      REQUIRE(equal_point(Arb{static_cast<short>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<short>::min()}, std::numeric_limits<short>::min()));
+      REQUIRE(equal_point(Arb{std::numeric_limits<short>::max()}, std::numeric_limits<short>::max()));
+    }
+
+    SECTION("unsigned short") {
+      REQUIRE(equal_point(Arb{static_cast<unsigned short>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<unsigned short>::max()}, std::numeric_limits<unsigned short>::max()));
+    }
+
+    SECTION("int") {
+      REQUIRE(equal_point(Arb{static_cast<int>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<int>::min()}, std::numeric_limits<int>::min()));
+      REQUIRE(equal_point(Arb{std::numeric_limits<int>::max()}, std::numeric_limits<int>::max()));
+    }
+
+    SECTION("unsigned int") {
+      REQUIRE(equal_point(Arb{static_cast<unsigned int>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<unsigned int>::max()}, std::numeric_limits<unsigned int>::max()));
+    }
+
+    SECTION("long") {
+      REQUIRE(equal_point(Arb{static_cast<long>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<long>::min()}, std::numeric_limits<long>::min()));
+      REQUIRE(equal_point(Arb{std::numeric_limits<long>::max()}, std::numeric_limits<long>::max()));
+    }
+
+    SECTION("unsigned long") {
+      REQUIRE(equal_point(Arb{static_cast<unsigned long>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<unsigned long>::max()}, std::numeric_limits<unsigned long>::max()));
+    }
+
+    SECTION("long long") {
+      REQUIRE(equal_point(Arb{static_cast<long long>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<long long>::min()}, std::numeric_limits<long long>::min()));
+      REQUIRE(equal_point(Arb{std::numeric_limits<long long>::max()}, std::numeric_limits<long long>::max()));
+    }
+
+    SECTION("unsigned long long") {
+      REQUIRE(equal_point(Arb{static_cast<unsigned long long>(0)}, 0));
+
+      REQUIRE(equal_point(Arb{std::numeric_limits<unsigned long long>::max()}, std::numeric_limits<unsigned long long>::max()));
+    }
+
+    SECTION("mpz_class") {
+      REQUIRE(equal_point(Arb{mpz_class{}}, 0));
+    }
+  }
+
+  SECTION("Constructor from Rational") {
+    REQUIRE(equal_point(Arb{mpq_class{1, 2}, 2} * 2, 1));
+    REQUIRE(!equal_point(Arb{mpq_class{1, 3}, 2} * 3, 1));
+  }
+
+  SECTION("Constructor from Arf") {
+    auto& a = GENERATE_REF(take(128, arfs(state)));
+
+    REQUIRE(equal_point(Arb{a}, a));
+  }
+
+  SECTION("Constructor from String") {
+    SECTION("Parse Errors are Reported as Exceptions") {
+      REQUIRE_THROWS(Arb("error", 64));
+    }
+
+    SECTION("Invalid Precisions are Reported") {
+      REQUIRE_THROWS(Arb("0", -1));
+      REQUIRE_THROWS(Arb("0", 0));
+      REQUIRE_NOTHROW(Arb("0", 1));
+    }
+
+    SECTION("Values Roundtrip") {
+      auto& a = GENERATE_REF(take(1024, arbs(state)));
+
+      const std::string s = static_cast<std::string>(a);
+
+      Arb b{s, std::max(arb_bits(a), 1l)};
+
+      CAPTURE(a, s, b, arb_dump_str(a));
+
+      // This does not hold in general, see https://github.com/fredrik-johansson/arb/issues/412.
+      // REQUIRE(a.equal(b));
+
+      REQUIRE(b.contains(a));
+    }
+  }
 }
 
-TEST_CASE("Initialization from Integer Types", "[arb]") {
-  REQUIRE(((Arb(1u) == Arb(1)) && *(Arb(1u) == Arb(1))));
-  REQUIRE(((Arb(1) == Arb(1)) && *(Arb(1) == Arb(1))));
-  REQUIRE(((Arb(1l) == Arb(1)) && *(Arb(1l) == Arb(1))));
-  REQUIRE(((Arb(1ul) == Arb(1)) && *(Arb(1ul) == Arb(1))));
-  REQUIRE(((Arb(1ll) == Arb(1)) && *(Arb(1ll) == Arb(1))));
-  REQUIRE(((Arb(1ull) == Arb(1)) && *(Arb(1ull) == Arb(1))));
-  REQUIRE(((Arb(mpz_class(1)) == Arb(1)) && *(Arb(mpz_class(1)) == Arb(1))));
+TEST_CASE("Containment of Arb Elements", "[arb][contains]") {
+  flint_rand_t& state = GENERATE(rands());
 
-  REQUIRE((((Arb() = 1u) == Arb(1)) && *((Arb() = 1u) == Arb(1))));
-  REQUIRE((((Arb() = 1) == Arb(1)) && *((Arb() = 1) == Arb(1))));
-  REQUIRE((((Arb() = 1ul) == Arb(1)) && *((Arb() = 1ul) == Arb(1))));
-  REQUIRE((((Arb() = 1l) == Arb(1)) && *((Arb() = 1l) == Arb(1))));
-  REQUIRE((((Arb() = 1ull) == Arb(1)) && *((Arb() = 1ull) == Arb(1))));
-  REQUIRE((((Arb() = 1ll) == Arb(1)) && *((Arb() = 1ll) == Arb(1))));
-  REQUIRE((((Arb() = mpz_class(1)) == Arb(1)) && *((Arb() = mpz_class(1)) == Arb(1))));
-}
+  auto& a = GENERATE_REF(take(128, arbs(state)));
+  CAPTURE(a);
 
-TEST_CASE("Relational Operators with Arb", "[arb]") {
-  Arb x(-1), y(1);
-
-  REQUIRE(((x < y) && *(x < y)));
-  REQUIRE(((y > x) && *(y > x)));
-  REQUIRE(((x <= y) && *(x <= y)));
-  REQUIRE(((y >= x) && *(y >= x)));
-  REQUIRE(((x == x) && *(x == x)));
-  REQUIRE(((x != y) && *(x != y)));
-  REQUIRE(((y > x) && !*(y < x)));
-  REQUIRE(((x < y) && !*(x > y)));
-  REQUIRE(((y >= x) && !*(y <= x)));
-  REQUIRE(((x <= y) && !*(x >= y)));
-}
-
-TEMPLATE_TEST_CASE("Relation Operators with Integers", "[arb]", unsigned short, short, unsigned int, int, unsigned long, long, unsigned long long, long long) {
-  Arb x(-1);
-  TestType y = 1;
-
-  REQUIRE(((x < y) && *(x < y)));
-
-  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
-  // REQUIRE(((y > x) && *(y > x)));
-
-  REQUIRE(((x <= y) && *(x <= y)));
-
-  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
-  // REQUIRE(((y >= x) && *(y >= x)));
-
-  REQUIRE(((x == x) && *(x == x)));
-  REQUIRE(((x != y) && *(x != y)));
-
-  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
-  // REQUIRE(((y > x) && !*(y < x)));
-
-  REQUIRE(((x < y) && !*(x > y)));
-
-  // Not provided, see https://github.com/flatsurf/arbxx/pull/152
-  // REQUIRE(((y >= x) && !*(y <= x)));
-
-  REQUIRE(((x <= y) && !*(x >= y)));
-}
-
-TEST_CASE("Unary Minus of Arb", "[arb]") {
-  Arb x(1);
-
-  REQUIRE((x == -(-x) && *(x == -(-x))));
-  REQUIRE((x == -x && !*(x == -x)));
-}
-
-TEST_CASE("Exactness of Arb", "[arb]") {
-  REQUIRE(Arb(mpq_class(1, 2), 2).is_exact());
-  REQUIRE(!Arb(mpq_class(1, 3), 2).is_exact());
-}
-
-TEST_CASE("Print Arb", "[arb]") {
-  REQUIRE(lexical_cast<string>(Arb()) == "0");
-  REQUIRE(lexical_cast<string>(Arb(1337)) == "1337.00");
-  REQUIRE(lexical_cast<string>(Arb(string(1337, '1'), 1024)) == "[1.11111e+1336 +/- 1.12e+1330]");
-  REQUIRE(lexical_cast<string>(Arb("." + string(1337, '0') + "1", 1024)) == "[1.00000e-1338 +/- 3e-1348]");
-  REQUIRE(lexical_cast<string>(Arb(mpq_class(1, 2), 1)) == "0.500000");
-  REQUIRE(lexical_cast<string>(Arb(mpq_class(1, 3), 64)) == "[0.333333 +/- 3.34e-7]");
-}
-
-TEST_CASE("Cast to Arf", "[arb][arf]") {
-  Arb x(mpq_class(1, 2), 4);
-
-  REQUIRE(static_cast<std::pair<Arf, Arf>>(x).first == Arf(.5));
-  REQUIRE(static_cast<std::pair<Arf, Arf>>(x).second == Arf(.5));
-}
-
-TEST_CASE("Zero", "[arb][zero]") {
-  Arb x = Arb::zero();
-
-  REQUIRE(x == 0);
-}
-
-TEST_CASE("One", "[arb][one]") {
-  Arb x = Arb::one();
-
-  REQUIRE(x == 1);
-}
-
-TEST_CASE("Infinite Values", "[arb][inf]") {
-  Arb x = Arb::pos_inf();
-  Arb y = Arb::neg_inf();
-
-  REQUIRE(*(x > 0));
-  REQUIRE(*(y < 0));
-}
-
-TEST_CASE("Indeterminate Value", "[arb][indeterminate]") {
-  Arb x = Arb::indeterminate();
-
-  REQUIRE(!(x >= 0));
-  REQUIRE(!(x <= 0));
+  REQUIRE(a.contains(a));
 }
 
 }  // namespace arbxx::test

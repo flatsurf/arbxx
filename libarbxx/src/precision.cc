@@ -1,8 +1,7 @@
 /**********************************************************************
  *  This file is part of arbxx.
  *
- *        Copyright (C)      2019 Vincent Delecroix
- *        Copyright (C) 2019-2022 Julian Rüth
+ *        Copyright (C) 2022 Julian Rüth
  *
  *  arbxx is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,29 +17,31 @@
  *  along with arbxx. If not, see <https://www.gnu.org/licenses/>.
  *********************************************************************/
 
-/*
- * Forward declarations of all our classes. Loaded by every other header file
- * for convenience and also to get consistent defaults for template parameters.
- */
+#include <stack>
+#include <stdexcept>
 
-#ifndef LIBARBXXL_FORWARD_HPP
-#define LIBARBXXL_FORWARD_HPP
-
-#include "local.hpp"
+#include "../arbxx/precision.hpp"
 
 namespace arbxx {
-class Precision;
-class Rounding;
 
-class Mag;
-class Arf;
-class Arb;
-class Acb;
-class ArbPoly;
-class AcbPoly;
-class ArbMat;
-class AcbMat;
+namespace {
 
-}  // namespace arbxx
+thread_local std::stack<prec> precisions;
 
-#endif
+}
+
+Precision::Precision(prec prec) {
+  precisions.push(prec);
+}
+
+Precision::~Precision() {
+  precisions.pop();
+}
+
+prec Precision::current() {
+  if (precisions.empty())
+    throw std::logic_error("No precision has been specified in this scope.");
+  return precisions.top();
+}
+
+}

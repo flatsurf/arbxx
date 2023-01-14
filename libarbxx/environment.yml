@@ -6,14 +6,19 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - arb>=2.21,<2.22
   - automake
   - benchmark
   - boost-cpp==1.74.0
+  # see https://github.com/byexamples/byexample/issues/220
+  - byexample==10.4.0
   - coreutils
+  # see https://github.com/wlav/cppyy/issues/32, with newer versions we cannot test operators that throw.
+  - cppyy==1.9.5
   - cxx-compiler
-  - arb>=2.21,<2.22
   - gmp>6,<7
   - libtool
   - make
+  - parallel
   # valgrind is only needed for make check-valgrind
   # - valgrind
